@@ -1,0 +1,542 @@
+{
+  "openapi": "3.1.0",
+  "info": { "title": "Credalysis", "version": "0.1.0" },
+  "paths": {
+    "/users/": {
+      "get": {
+        "summary": "Get Users",
+        "operationId": "get_users_users__get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": { "application/json": { "schema": {} } }
+          }
+        }
+      }
+    },
+    "/users/profile/{email}": {
+      "get": {
+        "summary": "Get User Profile",
+        "operationId": "get_user_profile_users_profile__email__get",
+        "parameters": [
+          {
+            "name": "email",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string", "title": "Email" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": { "application/json": { "schema": {} } }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "summary": "Update User Profile",
+        "operationId": "update_user_profile_users_profile__email__put",
+        "parameters": [
+          {
+            "name": "email",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string", "title": "Email" }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": true,
+                "title": "Profile"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": { "application/json": { "schema": {} } }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/user/loans/{email}": {
+      "get": {
+        "summary": "Get User Loans",
+        "operationId": "get_user_loans_user_loans__email__get",
+        "parameters": [
+          {
+            "name": "email",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string", "title": "Email" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": { "application/json": { "schema": {} } }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/user/transactions/{email}": {
+      "get": {
+        "summary": "Get User Transactions",
+        "operationId": "get_user_transactions_user_transactions__email__get",
+        "parameters": [
+          {
+            "name": "email",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string", "title": "Email" }
+          },
+          {
+            "name": "start_date",
+            "in": "query",
+            "required": false,
+            "schema": { "type": "string", "title": "Start Date" }
+          },
+          {
+            "name": "end_date",
+            "in": "query",
+            "required": false,
+            "schema": { "type": "string", "title": "End Date" }
+          },
+          {
+            "name": "transaction_type",
+            "in": "query",
+            "required": false,
+            "schema": { "type": "string", "title": "Transaction Type" }
+          },
+          {
+            "name": "merchant_name",
+            "in": "query",
+            "required": false,
+            "schema": { "type": "string", "title": "Merchant Name" }
+          },
+          {
+            "name": "category",
+            "in": "query",
+            "required": false,
+            "schema": { "type": "string", "title": "Category" }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "schema": { "type": "string", "title": "Status" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": { "application/json": { "schema": {} } }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/user/ask-ai": {
+      "post": {
+        "summary": "Ask Ai",
+        "operationId": "ask_ai_user_ask_ai_post",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": { "application/json": { "schema": {} } }
+          }
+        }
+      }
+    },
+    "/loans/{user_id}": {
+      "get": {
+        "summary": "Get Loans",
+        "operationId": "get_loans_loans__user_id__get",
+        "parameters": [
+          {
+            "name": "user_id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string", "title": "User Id" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": { "application/json": { "schema": {} } }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/insights/": {
+      "post": {
+        "summary": "Add Insight",
+        "operationId": "add_insight_insights__post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/InsightIn" }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": { "application/json": { "schema": {} } }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/customer_products": {
+      "get": {
+        "summary": "Get Customer Products",
+        "operationId": "get_customer_products_customer_products_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": { "application/json": { "schema": {} } }
+          }
+        }
+      }
+    },
+    "/analyze/text": {
+      "post": {
+        "summary": "Analyze Text",
+        "operationId": "analyze_text_analyze_text_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": { "type": "string", "title": "Prompt" }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": { "application/json": { "schema": {} } }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/predict/credit_score": {
+      "get": {
+        "summary": "Predict Credit Score",
+        "operationId": "predict_credit_score_predict_credit_score_get",
+        "parameters": [
+          {
+            "name": "user_id",
+            "in": "query",
+            "required": true,
+            "schema": { "type": "string", "title": "User Id" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": { "application/json": { "schema": {} } }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/risk_assessments": {
+      "get": {
+        "summary": "Get Risk Assessments",
+        "operationId": "get_risk_assessments_risk_assessments_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": { "application/json": { "schema": {} } }
+          }
+        }
+      }
+    },
+    "/financial_goals": {
+      "get": {
+        "summary": "Get Financial Goals",
+        "operationId": "get_financial_goals_financial_goals_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": { "application/json": { "schema": {} } }
+          }
+        }
+      }
+    },
+    "/users/goals/{email}": {
+      "get": {
+        "summary": "Get User Goals",
+        "operationId": "get_user_goals_users_goals__email__get",
+        "parameters": [
+          {
+            "name": "email",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string", "title": "Email" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": { "application/json": { "schema": {} } }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/users/goals": {
+      "post": {
+        "summary": "Add Goal",
+        "operationId": "add_goal_users_goals_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/Goal" }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": { "application/json": { "schema": {} } }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/users/goals/{goal_id}": {
+      "put": {
+        "summary": "Update Goal",
+        "operationId": "update_goal_users_goals__goal_id__put",
+        "parameters": [
+          {
+            "name": "goal_id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "integer", "title": "Goal Id" }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/Goal" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": { "application/json": { "schema": {} } }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/product_recommendations": {
+      "get": {
+        "summary": "Get Recommendations",
+        "operationId": "get_recommendations_product_recommendations_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": { "application/json": { "schema": {} } }
+          }
+        }
+      }
+    },
+    "/login": {
+      "post": {
+        "summary": "Login",
+        "operationId": "login_login_post",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": { "application/json": { "schema": {} } }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Goal": {
+        "properties": {
+          "customer_email": { "type": "string", "title": "Customer Email" },
+          "goal_name": { "type": "string", "title": "Goal Name" },
+          "goal_type": { "type": "string", "title": "Goal Type" },
+          "target_amount": { "type": "number", "title": "Target Amount" },
+          "current_amount": { "type": "number", "title": "Current Amount" },
+          "progress_percent": { "type": "number", "title": "Progress Percent" },
+          "target_date": { "type": "string", "title": "Target Date" },
+          "required_monthly_contribution": {
+            "type": "number",
+            "title": "Required Monthly Contribution"
+          },
+          "actual_monthly_contribution": {
+            "type": "number",
+            "title": "Actual Monthly Contribution"
+          },
+          "on_track": { "type": "boolean", "title": "On Track" },
+          "status": { "type": "string", "title": "Status" },
+          "priority": { "type": "string", "title": "Priority" },
+          "last_updated": { "type": "string", "title": "Last Updated" }
+        },
+        "type": "object",
+        "required": [
+          "customer_email",
+          "goal_name",
+          "goal_type",
+          "target_amount",
+          "current_amount",
+          "progress_percent",
+          "target_date",
+          "required_monthly_contribution",
+          "actual_monthly_contribution",
+          "on_track",
+          "status",
+          "priority",
+          "last_updated"
+        ],
+        "title": "Goal"
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": { "$ref": "#/components/schemas/ValidationError" },
+            "type": "array",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "title": "HTTPValidationError"
+      },
+      "InsightIn": {
+        "properties": {
+          "customer_id": { "type": "string", "title": "Customer Id" },
+          "insight_date": { "type": "string", "title": "Insight Date" },
+          "total_income": { "type": "number", "title": "Total Income" },
+          "total_expenses": { "type": "number", "title": "Total Expenses" },
+          "financial_health_score": {
+            "type": "number",
+            "title": "Financial Health Score"
+          }
+        },
+        "type": "object",
+        "required": [
+          "customer_id",
+          "insight_date",
+          "total_income",
+          "total_expenses",
+          "financial_health_score"
+        ],
+        "title": "InsightIn"
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": { "anyOf": [{ "type": "string" }, { "type": "integer" }] },
+            "type": "array",
+            "title": "Location"
+          },
+          "msg": { "type": "string", "title": "Message" },
+          "type": { "type": "string", "title": "Error Type" }
+        },
+        "type": "object",
+        "required": ["loc", "msg", "type"],
+        "title": "ValidationError"
+      }
+    }
+  }
+}
