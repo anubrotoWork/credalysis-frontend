@@ -17,6 +17,7 @@ export default function InnerLayout({ children }: { children: React.ReactNode })
           <li><a href="/user/transactions" className="hover:underline">Transactions</a></li>
           <li><a href="/user/goals" className="hover:underline">Goals</a></li>
           <li><a href="/user/loans" className="hover:underline">Loans</a></li>
+          <li><a href="/user/insights" className="hover:underline">Insigths</a></li>
           {/* <li><a href="/user/dashboard" className="hover:underline">Dashboard</a></li>
           <li><a href="/user/analytics" className="hover:underline">Analytics</a></li>
           <li><a href="/user/recommendations" className="hover:underline">Recommendations</a></li> */}

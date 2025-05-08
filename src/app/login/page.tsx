@@ -8,7 +8,7 @@ export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false); // 👈 new state
+  const [loading, setLoading] = useState(false);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -22,24 +22,24 @@ export default function LoginPage() {
         body: JSON.stringify({ email, password }),
       });
 
-      const data = await res.json();      
+      const data = await res.json();
 
       if (data.status?.includes("Authenticated")) {
         localStorage.setItem("auth", "true");
         localStorage.setItem("email", email);
         localStorage.setItem("access", data.access);
-        if(data.access == "admin") {
+        if (data.access === "admin") {
           router.push("/admin/home");
-        } else if(data.access == "client") {
+        } else if (data.access === "client") {
           router.push("/client/home");
-        } else if(data.access == "user") {
+        } else if (data.access === "user") {
           router.push("/user/home");
         }
       } else {
         setError("Invalid credentials");
       }
     } catch (err) {
-      console.error("Login error:", err)
+      console.error("Login error:", err);
       setError("Login failed. Try again.");
     } finally {
       setLoading(false);
@@ -47,26 +47,28 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-100">
-      <form onSubmit={handleLogin} className="bg-white p-6 rounded shadow-md w-96">
-        <h2 className="text-2xl font-bold mb-4">Login</h2>
+    <div className="flex items-center justify-center min-h-screen bg-gray-900"> {/* Changed bg */}
+      <form onSubmit={handleLogin} className="bg-gray-800 p-6 rounded shadow-md w-96"> {/* Changed bg */}
+        <h2 className="text-2xl font-bold mb-4 text-gray-100">Login</h2> {/* Added text color */}
         <input
-          className="border w-full mb-3 px-3 py-2 rounded"
+          className="border border-gray-600 bg-gray-700 text-gray-100 placeholder-gray-400 w-full mb-3 px-3 py-2 rounded" // Changed border, bg, text, placeholder
           placeholder="Email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
         />
         <input
-          className="border w-full mb-3 px-3 py-2 rounded"
+          className="border border-gray-600 bg-gray-700 text-gray-100 placeholder-gray-400 w-full mb-3 px-3 py-2 rounded" // Changed border, bg, text, placeholder
           type="password"
           placeholder="Password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
         />
-        {error && <p className="text-red-500 text-sm mb-2">{error}</p>}
+        {error && <p className="text-red-400 text-sm mb-2">{error}</p>} {/* Changed text color */}
         <button
           type="submit"
-          className={`w-full text-white py-2 rounded ${loading ? "bg-blue-300" : "bg-blue-500 hover:bg-blue-600"}`}
+          className={`w-full text-white py-2 rounded ${
+            loading ? "bg-indigo-800" : "bg-indigo-600 hover:bg-indigo-700" // Changed button colors
+          }`}
           disabled={loading}
         >
           {loading ? (
