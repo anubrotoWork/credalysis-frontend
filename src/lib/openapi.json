@@ -1,6 +1,6 @@
 {
   "openapi": "3.1.0",
-  "info": { "title": "Credalysis", "version": "0.1.0" },
+  "info": { "title": "FastAPI", "version": "0.1.0" },
   "paths": {
     "/users/": {
       "get": {
@@ -259,7 +259,7 @@
         "requestBody": {
           "content": {
             "application/json": {
-              "schema": { "type": "string", "title": "Prompt" }
+              "schema": { "$ref": "#/components/schemas/TextAnalysisRequest" }
             }
           },
           "required": true
@@ -424,6 +424,73 @@
         }
       }
     },
+    "/users/goals/agent/review/{email}": {
+      "get": {
+        "summary": "Agent Goal Reviewer",
+        "operationId": "agent_goal_reviewer_users_goals_agent_review__email__get",
+        "parameters": [
+          {
+            "name": "email",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string", "title": "Email" }
+          },
+          {
+            "name": "user_question",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [{ "type": "string" }, { "type": "null" }],
+              "description": "Specific question about the user's financial goals.",
+              "title": "User Question"
+            },
+            "description": "Specific question about the user's financial goals."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": { "application/json": { "schema": {} } }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/users/goals/agent/advice/{email}": {
+      "get": {
+        "summary": "Agent Goal Advisor",
+        "operationId": "agent_goal_advisor_users_goals_agent_advice__email__get",
+        "parameters": [
+          {
+            "name": "email",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string", "title": "Email" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": { "application/json": { "schema": {} } }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+              }
+            }
+          }
+        }
+      }
+    },
     "/product_recommendations": {
       "get": {
         "summary": "Get Recommendations",
@@ -522,6 +589,12 @@
           "financial_health_score"
         ],
         "title": "InsightIn"
+      },
+      "TextAnalysisRequest": {
+        "properties": { "prompt": { "type": "string", "title": "Prompt" } },
+        "type": "object",
+        "required": ["prompt"],
+        "title": "TextAnalysisRequest"
       },
       "ValidationError": {
         "properties": {
