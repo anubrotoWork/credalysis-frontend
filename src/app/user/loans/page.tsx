@@ -23,15 +23,23 @@ export default function LoansPage() {
 
   useEffect(() => {
     if (email) {
-      fetch(`http://localhost:8000/user/loans/${email}`)
-        .then(res => res.json())
-        .then(data => {
-          setLoans(data.loans); // <-- Fix here
+      fetch(`http://34.55.216.204:8000/user/loans/${email}`)
+        .then((res) => res.json())
+        .then((data) => {
+          // Check if data.loans is an array before setting the state
+          if (Array.isArray(data.loans)) {
+            setLoans(data.loans);
+          } else {
+            setLoans([]); // Set to an empty array if loans are missing or malformed
+          }
           setLoading(false);
         })
-        .catch(() => setLoading(false));
+        .catch(() => {
+          setLoans([]); // Set to an empty array if there's an error
+          setLoading(false);
+        });
     }
-  }, [email]);
+  }, [email]);  
 
   if (loading) return <div className="text-center mt-10">Loading...</div>;
 

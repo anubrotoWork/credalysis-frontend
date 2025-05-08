@@ -16,7 +16,7 @@ export default function ProfilePage() {
   const email = typeof window !== 'undefined' ? localStorage.getItem('email') : '';
 
   useEffect(() => {
-    fetch(`http://localhost:8000/users/profile/${email}`)
+    fetch(`http://34.55.216.204:8000/users/profile/${email}`)
       .then(res => res.json())
       .then(data => {
         // Split full name into first and last if needed (fallback)
@@ -28,7 +28,7 @@ export default function ProfilePage() {
         setProfile(data);
         setLoading(false);
       });
-  }, []);
+  }, [email]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setProfile({ ...profile, [e.target.name]: e.target.value });
@@ -42,7 +42,7 @@ export default function ProfilePage() {
       address: profile.address,
     };
 
-    await fetch(`http://localhost:8000/users/profile/${email}`, {
+    await fetch(`http://34.55.216.204:8000/users/profile/${email}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),

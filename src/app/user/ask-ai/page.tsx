@@ -24,7 +24,7 @@ export default function AskAIPage() {
     setQuery('');
     setLoading(true);
 
-    const res = await fetch('http://localhost:8000/user/ask-ai', {
+    const res = await fetch('http://34.55.216.204:8000/user/ask-ai', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email, query }),

@@ -28,8 +28,8 @@ export default function DashboardPage() {
 
   useEffect(() => {
     const fetchData = async () => {
-      const resRisk = await fetch('http://localhost:8000/risk_assessments');
-      const resGoals = await fetch('http://localhost:8000/financial_goals');
+      const resRisk = await fetch('http://34.55.216.204:8000/risk_assessments');
+      const resGoals = await fetch('http://34.55.216.204:8000/financial_goals');
       setRiskData(await resRisk.json());
       setGoals(await resGoals.json());
     };

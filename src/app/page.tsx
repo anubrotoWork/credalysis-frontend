@@ -20,8 +20,8 @@ export default function MainPage() {
 
           <div className="bg-white p-6 rounded-lg shadow-md">
             <h2 className="text-xl font-semibold text-green-600">
-              <Link href="/risk_and" className="hover:text-green-800">
-                Risk and Lending
+              <Link href="/risk_and_lending" className="hover:text-green-800">
+                Risk And Lending
               </Link>
             </h2>
           </div>

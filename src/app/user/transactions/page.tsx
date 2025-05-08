@@ -33,7 +33,7 @@ export default function TransactionsPage() {
   useEffect(() => {
     if (email) {
       const query = new URLSearchParams(filters).toString();
-      fetch(`http://localhost:8000/user/transactions/${email}?${query}`)
+      fetch(`http://34.55.216.204:8000/user/transactions/${email}?${query}`)
         .then((res) => res.json())
         .then((data) => {
           setTransactions(data.transactions);

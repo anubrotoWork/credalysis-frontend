@@ -25,7 +25,7 @@ export default function RecommendationsPage() {
 
   useEffect(() => {
     const fetchData = async () => {
-      const res = await fetch('http://localhost:8000/product_recommendations');
+      const res = await fetch('http://34.55.216.204:8000/product_recommendations');
       setRecommendations(await res.json());
     };
     fetchData();

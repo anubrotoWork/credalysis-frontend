@@ -28,7 +28,7 @@ export default function GoalsPage() {
 
   const fetchGoals = useCallback(async () => {
     try {
-      const res = await fetch(`http://localhost:8000/users/goals/${email}`);
+      const res = await fetch(`http://34.55.216.204:8000/users/goals/${email}`);
       const data = await res.json();
       setGoals(data.goals || []);
     } catch {
@@ -53,7 +53,7 @@ export default function GoalsPage() {
   
   
   const handleAddGoal = () => {
-    fetch("http://localhost:8000/users/goals", {
+    fetch("http://34.55.216.204:8000/users/goals", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ ...newGoal, customer_email: email }),
@@ -66,7 +66,7 @@ export default function GoalsPage() {
   };
 
   const handleUpdateGoal = (goal: Goal, index: number) => {
-    fetch(`http://localhost:8000/users/goals/${index + 1}`, {  // assumes goal_id = index+1 for demo
+    fetch(`http://34.55.216.204:8000/users/goals/${index + 1}`, {  // assumes goal_id = index+1 for demo
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ ...goal, customer_email: email }),
