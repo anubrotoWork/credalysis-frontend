@@ -240,14 +240,86 @@
         }
       }
     },
-    "/customer_products": {
+    "/users/insights/agent/spending-optimizer/{email}": {
       "get": {
-        "summary": "Get Customer Products",
-        "operationId": "get_customer_products_customer_products_get",
+        "summary": "Agent Spending Optimizer",
+        "operationId": "agent_spending_optimizer_users_insights_agent_spending_optimizer__email__get",
+        "parameters": [
+          {
+            "name": "email",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string", "title": "Email" }
+          }
+        ],
         "responses": {
           "200": {
             "description": "Successful Response",
             "content": { "application/json": { "schema": {} } }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/users/insights/agent/savings-strategy/{email}": {
+      "get": {
+        "summary": "Agent Savings Strategy",
+        "operationId": "agent_savings_strategy_users_insights_agent_savings_strategy__email__get",
+        "parameters": [
+          {
+            "name": "email",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string", "title": "Email" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": { "application/json": { "schema": {} } }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/users/insights/agent/budget-health/{email}": {
+      "get": {
+        "summary": "Agent Budget Health Review",
+        "operationId": "agent_budget_health_review_users_insights_agent_budget_health__email__get",
+        "parameters": [
+          {
+            "name": "email",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string", "title": "Email" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": { "application/json": { "schema": {} } }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+              }
+            }
           }
         }
       }
@@ -312,6 +384,18 @@
       "get": {
         "summary": "Get Risk Assessments",
         "operationId": "get_risk_assessments_risk_assessments_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": { "application/json": { "schema": {} } }
+          }
+        }
+      }
+    },
+    "/risk_assessments/agent/analyze_trends": {
+      "get": {
+        "summary": "Analyze Risk Assessment Trends",
+        "operationId": "analyze_risk_assessment_trends_risk_assessments_agent_analyze_trends_get",
         "responses": {
           "200": {
             "description": "Successful Response",
@@ -422,6 +506,32 @@
             }
           }
         }
+      },
+      "delete": {
+        "summary": "Delete Goal",
+        "operationId": "delete_goal_users_goals__goal_id__delete",
+        "parameters": [
+          {
+            "name": "goal_id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "integer", "title": "Goal Id" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": { "application/json": { "schema": {} } }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+              }
+            }
+          }
+        }
       }
     },
     "/users/goals/agent/review/{email}": {
@@ -491,6 +601,70 @@
         }
       }
     },
+    "/users/goals/agent/scenario/{email}": {
+      "get": {
+        "summary": "Agent Scenario Planner",
+        "operationId": "agent_scenario_planner_users_goals_agent_scenario__email__get",
+        "parameters": [
+          {
+            "name": "email",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string", "title": "Email" }
+          },
+          {
+            "name": "scenario_description",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 10,
+              "description": "Describe the 'what if' scenario. E.g., 'What if I increase my contribution to Dream Vacation by $50 per month?' or 'What if I pause contributions to New Gadget for 3 months to focus on my Emergency Fund?'",
+              "title": "Scenario Description"
+            },
+            "description": "Describe the 'what if' scenario. E.g., 'What if I increase my contribution to Dream Vacation by $50 per month?' or 'What if I pause contributions to New Gadget for 3 months to focus on my Emergency Fund?'"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": { "application/json": { "schema": {} } }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/financial_goals/agent/analyze_trends": {
+      "get": {
+        "summary": "Analyze Financial Goal Trends",
+        "operationId": "analyze_financial_goal_trends_financial_goals_agent_analyze_trends_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": { "application/json": { "schema": {} } }
+          }
+        }
+      }
+    },
+    "/customer_products": {
+      "get": {
+        "summary": "Get Customer Products",
+        "operationId": "get_customer_products_customer_products_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": { "application/json": { "schema": {} } }
+          }
+        }
+      }
+    },
     "/product_recommendations": {
       "get": {
         "summary": "Get Recommendations",
@@ -525,20 +699,33 @@
           "goal_type": { "type": "string", "title": "Goal Type" },
           "target_amount": { "type": "number", "title": "Target Amount" },
           "current_amount": { "type": "number", "title": "Current Amount" },
-          "progress_percent": { "type": "number", "title": "Progress Percent" },
+          "progress_percent": {
+            "anyOf": [{ "type": "number" }, { "type": "null" }],
+            "title": "Progress Percent"
+          },
           "target_date": { "type": "string", "title": "Target Date" },
           "required_monthly_contribution": {
-            "type": "number",
+            "anyOf": [{ "type": "number" }, { "type": "null" }],
             "title": "Required Monthly Contribution"
           },
           "actual_monthly_contribution": {
-            "type": "number",
+            "anyOf": [{ "type": "number" }, { "type": "null" }],
             "title": "Actual Monthly Contribution"
           },
-          "on_track": { "type": "boolean", "title": "On Track" },
-          "status": { "type": "string", "title": "Status" },
+          "on_track": {
+            "anyOf": [{ "type": "boolean" }, { "type": "null" }],
+            "title": "On Track"
+          },
+          "status": {
+            "anyOf": [{ "type": "string" }, { "type": "null" }],
+            "title": "Status",
+            "default": "Active"
+          },
           "priority": { "type": "string", "title": "Priority" },
-          "last_updated": { "type": "string", "title": "Last Updated" }
+          "last_updated": {
+            "anyOf": [{ "type": "string" }, { "type": "null" }],
+            "title": "Last Updated"
+          }
         },
         "type": "object",
         "required": [
@@ -547,14 +734,8 @@
           "goal_type",
           "target_amount",
           "current_amount",
-          "progress_percent",
           "target_date",
-          "required_monthly_contribution",
-          "actual_monthly_contribution",
-          "on_track",
-          "status",
-          "priority",
-          "last_updated"
+          "priority"
         ],
         "title": "Goal"
       },
