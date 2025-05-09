@@ -7,6 +7,32 @@ type InsightResponse = {
   analysis: string;
 };
 
+const formatTextToHTML = (text: string) => {
+  if (!text) return '';
+  
+  let formattedText = text;
+
+  // Handle bold text (i.e., text wrapped in `**`)
+  formattedText = formattedText.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+
+  // Handle unordered lists (i.e., lines that start with "*")
+  formattedText = formattedText.replace(/^\* (.*?)$/gm, '<li>$1</li>');
+
+  // Wrap list items in <ul> (only if there are list items)
+  formattedText = formattedText.replace(/(<li>.*?<\/li>)/g, '<ul class="list-nested-1">$1</ul>');
+
+  // Handle headers (e.g., text that starts with numbers followed by a dot)
+  formattedText = formattedText.replace(/^(\d+\.)(.*?)$/gm, (match, p1, p2) => {
+    return `<h3 class="text-lg font-semibold">${p2.trim()}</h3>`;
+  });
+
+  // Wrap paragraphs
+  formattedText = formattedText.replace(/\n\n/g, '</p><p class="mb-4">');
+  formattedText = `<p class="mb-4">${formattedText}</p>`;
+
+  return formattedText;
+};
+
 export default function InsightsPage() {
   const [email, setEmail] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<"spending" | "savings" | "budget">("spending");
@@ -92,7 +118,10 @@ export default function InsightsPage() {
                 {loading.spending ? "Loading..." : "Run Spending Analysis"}
               </button>
               {insights.spending && (
-                <div className="mt-4 whitespace-pre-wrap text-sm text-gray-200">{insights.spending}</div>
+                <div
+                  className="mt-4 whitespace-pre-wrap text-sm text-gray-200"
+                  dangerouslySetInnerHTML={{ __html: formatTextToHTML(insights.spending) }}
+                />
               )}
             </div>
           )}
@@ -107,7 +136,10 @@ export default function InsightsPage() {
                 {loading.savings ? "Loading..." : "Run Savings Strategy"}
               </button>
               {insights.savings && (
-                <div className="mt-4 whitespace-pre-wrap text-sm text-gray-200">{insights.savings}</div>
+                <div
+                  className="mt-4 whitespace-pre-wrap text-sm text-gray-200"
+                  dangerouslySetInnerHTML={{ __html: formatTextToHTML(insights.savings) }}
+                />
               )}
             </div>
           )}
@@ -122,7 +154,10 @@ export default function InsightsPage() {
                 {loading.budget ? "Loading..." : "Run Budget Health Review"}
               </button>
               {insights.budget && (
-                <div className="mt-4 whitespace-pre-wrap text-sm text-gray-200">{insights.budget}</div>
+                <div
+                  className="mt-4 whitespace-pre-wrap text-sm text-gray-200"
+                  dangerouslySetInnerHTML={{ __html: formatTextToHTML(insights.budget) }}
+                />
               )}
             </div>
           )}
