@@ -48,6 +48,8 @@ export default function InsightsPage() {
   });
   const [error, setError] = useState<string>("");
 
+  const backendApiUrl = "http://34.9.145.33:8000";
+
   useEffect(() => {
     const storedEmail = localStorage.getItem("email");
     if (!storedEmail) {
@@ -68,7 +70,7 @@ export default function InsightsPage() {
 
     setLoading(prev => ({ ...prev, [type]: true }));
     try {
-      const res = await fetch(`http://34.55.216.204:8000/users/insights/agent/${endpointMap[type]}/${email}`);
+      const res = await fetch(`${backendApiUrl}/users/insights/agent/${endpointMap[type]}/${email}`);
       const data: InsightResponse = await res.json();
       setInsights(prev => ({ ...prev, [type]: data.analysis }));
     } catch (err) {

@@ -57,6 +57,8 @@ export default function DashboardPage() {
   }>({ goals: false, risk: false });
   const router = useRouter();
 
+  const backendApiUrl = "http://34.9.145.33:8000";
+
   // Check authentication
   useEffect(() => {
     const isLoggedIn = localStorage.getItem("auth") === "true";
@@ -78,8 +80,8 @@ export default function DashboardPage() {
     const fetchData = async () => {
       try {
         setIsLoading(true);
-        const resRisk = await fetch('http://34.55.216.204:8000/risk_assessments');
-        const resGoals = await fetch('http://34.55.216.204:8000/financial_goals');
+        const resRisk = await fetch(`${backendApiUrl}/risk_assessments`);
+        const resGoals = await fetch(`${backendApiUrl}/financial_goals`);
         
         if (!resRisk.ok || !resGoals.ok) {
           throw new Error('Failed to fetch dashboard data');
@@ -105,7 +107,7 @@ export default function DashboardPage() {
   const fetchGoalsAnalysis = async () => {
     try {
       setAnalysisLoading(prev => ({ ...prev, goals: true }));
-      const response = await fetch('http://34.55.216.204:8000/financial_goals/agent/analyze_trends');
+      const response = await fetch(`${backendApiUrl}/financial_goals/agent/analyze_trends`);
       
       if (!response.ok) {
         throw new Error('Failed to fetch goals analysis');
@@ -128,7 +130,7 @@ export default function DashboardPage() {
   const fetchRiskAnalysis = async () => {
     try {
       setAnalysisLoading(prev => ({ ...prev, risk: true }));
-      const response = await fetch('http://34.55.216.204:8000/risk_assessments/agent/analyze_trends');
+      const response = await fetch(`${backendApiUrl}/risk_assessments/agent/analyze_trends`);
       
       if (!response.ok) {
         throw new Error('Failed to fetch risk analysis');

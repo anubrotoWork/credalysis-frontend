@@ -12,7 +12,7 @@ export default function AskAIPage() {
   const [loading, setLoading] = useState(false);
   const [email, setEmailState] = useState<string | null>(null); // Use state for email
   const bottomRef = useRef<HTMLDivElement>(null);
-
+  const backendApiUrl = "http://34.9.145.33:8000";
   useEffect(() => {
     // Safely access localStorage only on the client
     const storedEmail = localStorage.getItem('email');
@@ -35,7 +35,7 @@ export default function AskAIPage() {
     setLoading(true);
 
     try {
-      const res = await fetch('http://34.55.216.204:8000/user/ask-ai', {
+      const res = await fetch(`${backendApiUrl}/user/ask-ai`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, query: currentQuery }), // Use captured query

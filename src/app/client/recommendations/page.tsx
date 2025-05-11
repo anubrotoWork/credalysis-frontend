@@ -7,7 +7,7 @@ import { ProductRecommendation } from '@/types';
 export default function RecommendationsPage() {
   const [recommendations, setRecommendations] = useState<ProductRecommendation[]>([]);
   const router = useRouter();
-
+  const backendApiUrl = "http://34.9.145.33:8000";
   useEffect(() => {
     const isLoggedIn = localStorage.getItem("auth") === "true";
     const isClient = localStorage.getItem("access") == "client";
@@ -25,7 +25,7 @@ export default function RecommendationsPage() {
 
   useEffect(() => {
     const fetchData = async () => {
-      const res = await fetch('http://34.55.216.204:8000/product_recommendations');
+      const res = await fetch(`${backendApiUrl}/product_recommendations`);
       setRecommendations(await res.json());
     };
     fetchData();

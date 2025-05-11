@@ -18,7 +18,7 @@ export default function HomePage() {
   const router = useRouter();
   const paths = spec.paths || {};
   const schemas = spec.components?.schemas || {};
-
+  
   useEffect(() => {
     const isLoggedIn = localStorage.getItem("auth") === "true";
     const isClient = localStorage.getItem("access") == "client";

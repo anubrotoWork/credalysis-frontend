@@ -115,6 +115,9 @@ export default function GoalsPage() {
   const [email, setEmailState] = useState('');
   const [editOriginalGoalName, setEditOriginalGoalName] = useState<string | null>(null);
 
+  const backendApiUrl = "http://34.9.145.33:8000";
+
+
   useEffect(() => {
     const storedEmail = localStorage.getItem("email") || "";
     setEmailState(storedEmail);
@@ -131,7 +134,7 @@ export default function GoalsPage() {
     if (!email) return;
     setLoading(true);
     try {
-      const res = await fetch(`http://34.55.216.204:8000/users/goals/${email}`);
+      const res = await fetch(`${backendApiUrl}/users/goals/${email}`);
       if (!res.ok) throw new Error('Failed to fetch goals');
       const data = await res.json();
       setGoals(data.goals || []);
@@ -180,7 +183,7 @@ export default function GoalsPage() {
     };
   
     try {
-      await fetch("http://34.55.216.204:8000/users/goals", {
+      await fetch(`${backendApiUrl}/users/goals`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
@@ -206,7 +209,7 @@ export default function GoalsPage() {
       // Use original goal name for URL, encode it
       const goalNameForUrl = encodeURIComponent(editOriginalGoalName || goals[editIndex].goal_name);
   
-      await fetch(`http://34.55.216.204:8000/users/goals/${email}/${goalNameForUrl}`, {
+      await fetch(`${backendApiUrl}/users/goals/${email}/${goalNameForUrl}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ ...editGoal, customer_email: email }),
@@ -225,7 +228,7 @@ export default function GoalsPage() {
     if (!window.confirm("Are you sure you want to delete this goal?")) return;
     try {
       // Always encode the goal name in the URL
-      await fetch(`http://34.55.216.204:8000/users/goals/${email}/${encodeURIComponent(goal_name)}`, {
+      await fetch(`${backendApiUrl}/users/goals/${email}/${encodeURIComponent(goal_name)}`, {
         method: "DELETE",
       });
       await fetchGoals();
@@ -239,7 +242,7 @@ export default function GoalsPage() {
   const callGoalReview = async () => {
     setApiLoading(true);
     try {
-      const res = await fetch(`http://34.55.216.204:8000/users/goals/agent/review/${email}?user_question=${encodeURIComponent(userQuestion)}`);
+      const res = await fetch(`${backendApiUrl}/users/goals/agent/review/${email}?user_question=${encodeURIComponent(userQuestion)}`);
       const data: AgentResponse = await res.json();
       setAgentResponse(data);
       setActiveTab('review');
@@ -254,7 +257,7 @@ export default function GoalsPage() {
   const callGoalAdvice = async () => {
     setApiLoading(true);
     try {
-      const res = await fetch(`http://34.55.216.204:8000/users/goals/agent/advice/${email}`);
+      const res = await fetch(`${backendApiUrl}/users/goals/agent/advice/${email}`);
       const data: AgentResponse = await res.json();
       setAgentResponse(data);
       setActiveTab('advice');
@@ -273,7 +276,7 @@ export default function GoalsPage() {
     }
     setApiLoading(true);
     try {
-      const res = await fetch(`http://34.55.216.204:8000/users/goals/agent/scenario/${email}?scenario_description=${encodeURIComponent(scenarioDescription)}`);
+      const res = await fetch(`${backendApiUrl}/users/goals/agent/scenario/${email}?scenario_description=${encodeURIComponent(scenarioDescription)}`);
       const data: AgentResponse = await res.json();
       setAgentResponse(data);
       setActiveTab('scenario');

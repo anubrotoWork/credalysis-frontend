@@ -20,7 +20,7 @@ export default function LoansPage() {
   const [loans, setLoans] = useState<Loan[]>([]);
   const [loading, setLoading] = useState(true);
   const [email, setEmail] = useState<string | null>(null);
-
+  const backendApiUrl = "http://34.9.145.33:8000";
   useEffect(() => {
     const storedEmail = localStorage.getItem('email');
     setEmail(storedEmail);
@@ -29,7 +29,7 @@ export default function LoansPage() {
   useEffect(() => {
     if (email) {
       setLoading(true);
-      fetch(`http://34.55.216.204:8000/user/loans/${email}`)
+      fetch(`${backendApiUrl}/user/loans/${email}`)
         .then((res) => {
           if (!res.ok) {
             throw new Error(`HTTP error! status: ${res.status}`);

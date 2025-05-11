@@ -10,7 +10,7 @@ export default function AnalyticsPage() {
   const [loans, setLoans] = useState<Loan[]>([]);
   const [filter, setFilter] = useState<'spending' | 'saving' | 'budget' | 'all'>('all');
   const router = useRouter();
-
+  const backendApiUrl = "http://34.9.145.33:8000";
   useEffect(() => {
     const isLoggedIn = localStorage.getItem("auth") === "true";
     if (!isLoggedIn) router.push("/login");
@@ -18,10 +18,10 @@ export default function AnalyticsPage() {
 
   useEffect(() => {
     const fetchData = async () => {
-      const insightsRes = await fetch('http://34.55.216.204:8000/insights/all');
+      const insightsRes = await fetch(`${backendApiUrl}/insights/all`);
       const insightsJson = await insightsRes.json();
       
-      const loansRes = await fetch('http://34.55.216.204:8000/customer_products');
+      const loansRes = await fetch(`${backendApiUrl}/customer_products`);
       
       setInsights(Array.isArray(insightsJson) ? insightsJson : []);
       setLoans(await loansRes.json());

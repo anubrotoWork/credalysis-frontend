@@ -16,6 +16,8 @@ export default function ProfilePage() {
   // Ensure localStorage is accessed only on the client
   const [email, setEmail] = useState('');
 
+  const backendApiUrl = "http://34.9.145.33:8000";
+
   useEffect(() => {
     const storedEmail = localStorage.getItem('email');
     if (storedEmail) {
@@ -36,7 +38,7 @@ export default function ProfilePage() {
       }
     }
 
-    fetch(`http://34.55.216.204:8000/users/profile/${email}`)
+    fetch(`${backendApiUrl}/users/profile/${email}`)
       .then(res => {
         if (!res.ok) {
           throw new Error(`HTTP error! status: ${res.status}`);
@@ -81,7 +83,7 @@ export default function ProfilePage() {
     };
 
     try {
-      const res = await fetch(`http://34.55.216.204:8000/users/profile/${email}`, {
+      const res = await fetch(`${backendApiUrl}/users/profile/${email}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
