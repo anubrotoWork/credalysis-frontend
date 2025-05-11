@@ -55,6 +55,7 @@ export default function RecommendationsPage() {
   const [expandedCard, setExpandedCard] = useState<string | null>(null);
   
   const router = useRouter();
+  const backendApiUrl = "http://34.9.145.33:8000";
 
   // Authentication check
   useEffect(() => {
@@ -80,7 +81,7 @@ export default function RecommendationsPage() {
   const fetchRecommendations = async () => {
     setLoading(prev => ({ ...prev, recommendations: true }));
     try {
-      const res = await fetch('http://34.55.216.204:8000/product_recommendations');
+      const res = await fetch(`${backendApiUrl}/product_recommendations`);
       const data = await res.json();
       setRecommendations(data);
       
@@ -127,14 +128,14 @@ export default function RecommendationsPage() {
   const fetchPerformanceSummary = async () => {
     setLoading(prev => ({ ...prev, performance: true }));
     try {
-      const res = await fetch('http://34.55.216.204:8000/client/recommendations/agent/performance-summary');
+      const res = await fetch(`${backendApiUrl}/client/recommendations/agent/performance-summary`);
       const data = await res.json();
       setPerformanceSummary(data.analysis_report);
       
       // Extract data for visualization from the analysis report
       try {
         // Make an additional API call to get the raw performance data for visualization
-        const rawDataRes = await fetch('http://34.55.216.204:8000/client/recommendations/performance-data');
+        const rawDataRes = await fetch(`${backendApiUrl}/client/recommendations/performance-data`);
         const rawData = await rawDataRes.json();
         
         if (rawData && Array.isArray(rawData)) {
@@ -227,7 +228,7 @@ export default function RecommendationsPage() {
   const fetchReasonEffectiveness = async () => {
     setLoading(prev => ({ ...prev, reason: true }));
     try {
-      const res = await fetch('http://34.55.216.204:8000/client/recommendations/agent/reason-effectiveness');
+      const res = await fetch(`${backendApiUrl}/client/recommendations/agent/reason-effectiveness`);
       const data = await res.json();
       
       // The backend returns reason_effectiveness_report, not analysis_report
