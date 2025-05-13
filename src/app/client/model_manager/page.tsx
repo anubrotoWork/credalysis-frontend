@@ -1,61 +1,33 @@
 'use client';
+// src\app\client\model_manager\page.tsx
 
-import { useEffect } from "react";
-import { useRouter } from "next/navigation";
-import Link from "next/link";
+import Link from 'next/link'; // Import Link for navigation
+
+// Define sections for easier mapping and maintenance
 const sections = [
-  { title: "Overview", href: "/user/overview" },
-  { title: "Risk And Lending", href: "/user/risk_and_lending" },
-  { title: "Trends", href: "/user/trends" },
-  { title: "Increase Product Usage", href: "/user/increase_product_usage" },
-  { title: "Grow Merchant Rewards", href: "/user/grow_merchant_rewards" },
-  { title: "Save Customer Money", href: "/user/save_customer_money" },
-  { title: "Wallet Share", href: "/user/wallet_share" },
-  { title: "Benchmarking", href: "/user/benchmarking" },
-  { title: "Lifecycle", href: "/user/lifecycling" },
+  { title: "Risk Level", href: "/client/model_manager/risk_level" },
+  { title: "Credit Report", href: "/client/model_manager/credit_report" },
+//   { title: "Trends", href: "/trends" },
+//   { title: "Increase Product Usage", href: "/increase_product_usage" },
+//   { title: "Grow Merchant Rewards", href: "/grow_merchant_rewards" },
+//   { title: "Save Customer Money", href: "/save_customer_money" },
+//   { title: "Wallet Share", href: "/wallet_share" },
+//   { title: "Benchmarking", href: "/benchmarking" },
+//   { title: "Lifecycle", href: "/lifecycling" },
 ];
-export default function HomePage() {
-  const router = useRouter();
 
-  useEffect(() => {
-    const isLoggedIn = localStorage.getItem("auth") === "true";
-    const isUser = localStorage.getItem("access") == "user";
-
-    console.log(localStorage);
-    if (!isLoggedIn) {
-      router.push("/login");
-    }
-
-    if(!isUser) {
-      alert("you are not user");
-      router.push("/login");
-    }
-
-  }, [router]);
-
-  const handleLogout = () => {
-    localStorage.removeItem("auth");
-    localStorage.removeItem("email");
-    localStorage.removeItem("access");
-    router.push("/login");
-  };
-
+export default function MainPage() {
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-900 py-12 px-4 sm:px-6 lg:px-8">
       <div className="text-center space-y-6 mb-12">
         <h1 className="text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 sm:text-6xl">
-          Credalysis!
+          Model Manager
         </h1>
         <p className="mt-4 text-xl text-gray-400">
-          Next-Generation Financial Insights & Analytics
+          Click on What Model You Want to Use or Utilise?
         </p>
       </div>
-      <button
-        onClick={handleLogout}
-        className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 mb-4"
-      >
-        Sign Out
-      </button>
+
       <div className="w-full max-w-5xl">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {sections.map((section) => (

@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import Link from 'next/link'; // Import Link for navigation
+import Link from "next/link"; // Import Link for navigation
 
 // Define sections for easier mapping and maintenance
 const sections = [
@@ -20,10 +20,10 @@ export default function MainPage() {
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-900 py-12 px-4 sm:px-6 lg:px-8">
       <div className="text-center space-y-6 mb-12">
         <h1 className="text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 sm:text-6xl">
-          Credalysis!
+          Credalysis
         </h1>
         <p className="mt-4 text-xl text-gray-400">
-          Next-Generation Financial Insights & Analytics
+          Intelligent Finance, Delivered​
         </p>
       </div>
 

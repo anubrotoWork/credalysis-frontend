@@ -86,7 +86,8 @@ export default function TransactionsPage() {
         month: 'short',
         day: 'numeric',
       });
-    } catch (e) {
+    } catch (error) {
+      console.log(error);
       return dateString; // Fallback if date is not in a parsable format
     }
   };

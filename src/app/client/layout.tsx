@@ -17,6 +17,7 @@ export default function InnerLayout({ children }: { children: React.ReactNode })
           {/* <li><a href="/client/client_dashboard" className="hover:underline">Client Dashboard</a></li> */}
           <li><a href="/client/analytics" className="hover:underline">Analytics</a></li>
           <li><a href="/client/recommendations" className="hover:underline">Recommendations</a></li>
+          <li><a href="/client/model_manager" className="hover:underline">Model Manager</a></li>
         </ul>
       </nav>
       <main className="ml-64 p-6 w-full min-h-screen bg-gray-100">{children}</main>
