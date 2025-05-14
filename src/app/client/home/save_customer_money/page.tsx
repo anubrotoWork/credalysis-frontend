@@ -1,7 +1,8 @@
-'use client';
-import React, { useEffect, useState } from 'react';
-import ReactMarkdown from 'react-markdown';
-import remarkGfm from 'remark-gfm';
+"use client";
+import { useRouter } from "next/navigation";
+import React, { useEffect, useState } from "react";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 
 type Insight = {
   customer_id: string;
@@ -19,29 +20,57 @@ type SaveCustomerMoneyData = {
 
 export default function SaveCustomerMoneyPage() {
   const [data, setData] = useState<SaveCustomerMoneyData | null>(null);
-  const [activeTab, setActiveTab] = useState<'insights' | 'suggestions'>('insights');
+  const [activeTab, setActiveTab] = useState<"insights" | "suggestions">(
+    "insights"
+  );
+  
+  const router = useRouter();
+  useEffect(() => {
+    const isLoggedIn = localStorage.getItem("auth") === "true";
+    const isClient = localStorage.getItem("access") == "client";
+
+    console.log(localStorage);
+    if (!isLoggedIn) {
+      router.push("/login");
+    }
+
+    if (!isClient) {
+      alert("you are not client financial institution");
+      router.push("/login");
+    }
+  }, [router]);
 
   useEffect(() => {
-    fetch('http://34.9.145.33:8000/api/client/save_customer_money/')
+    fetch("http://34.9.145.33:8000/api/client/save_customer_money/")
       .then((res) => res.json())
       .then(setData)
-      .catch((err) => console.error('Failed to load save customer money data:', err));
+      .catch((err) =>
+        console.error("Failed to load save customer money data:", err)
+      );
   }, []);
 
   return (
     <div className="p-6 max-w-7xl mx-auto">
-      <h1 className="text-3xl font-bold mb-6">Save Customer Money Strategies</h1>
+      <h1 className="text-3xl font-bold mb-6">
+        Save Customer Money Strategies
+      </h1>
 
       <div className="flex space-x-4 mb-4">
         <button
-          className={`px-4 py-2 rounded ${activeTab === 'insights' ? 'bg-blue-600 text-white' : 'bg-gray-200'}`}
-          onClick={() => setActiveTab('insights')}
+          className={`px-4 py-2 rounded ${
+            activeTab === "insights" ? "bg-blue-600 text-white" : "bg-gray-200"
+          }`}
+          onClick={() => setActiveTab("insights")}
         >
           Top 5 Insights
         </button>
         <button
-          className={`px-4 py-2 rounded ${activeTab === 'suggestions' ? 'bg-blue-600 text-white' : 'bg-gray-200'}`}
-          onClick={() => setActiveTab('suggestions')}
+          className={`px-4 py-2 rounded ${
+            activeTab === "suggestions"
+              ? "bg-blue-600 text-white"
+              : "bg-gray-200"
+          }`}
+          onClick={() => setActiveTab("suggestions")}
         >
           Suggestions
         </button>
@@ -50,7 +79,7 @@ export default function SaveCustomerMoneyPage() {
       <div className="bg-white p-4 rounded shadow min-h-[300px]">
         {!data && <p className="text-gray-500">Loading...</p>}
 
-        {data && activeTab === 'insights' && (
+        {data && activeTab === "insights" && (
           <div>
             <h2 className="text-xl font-semibold mb-4">Top 5 Insights</h2>
             <div className="overflow-x-auto mb-6">
@@ -80,11 +109,13 @@ export default function SaveCustomerMoneyPage() {
           </div>
         )}
 
-        {data && activeTab === 'suggestions' && (
+        {data && activeTab === "suggestions" && (
           <div>
             <h2 className="text-xl font-semibold mb-4">Suggestions</h2>
             <div className="prose max-w-none overflow-y-auto max-h-[600px] whitespace-pre-wrap text-gray-800">
-              <ReactMarkdown remarkPlugins={[remarkGfm]}>{data.suggestions}</ReactMarkdown>
+              <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                {data.suggestions}
+              </ReactMarkdown>
             </div>
           </div>
         )}

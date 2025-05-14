@@ -4,15 +4,15 @@ import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 const sections = [
-  { title: "Overview", href: "/user/overview" },
-  { title: "Risk And Lending", href: "/user/risk_and_lending" },
-  { title: "Trends", href: "/user/trends" },
-  { title: "Increase Product Usage", href: "/user/increase_product_usage" },
-  { title: "Grow Merchant Rewards", href: "/user/grow_merchant_rewards" },
-  { title: "Save Customer Money", href: "/user/save_customer_money" },
-  { title: "Wallet Share", href: "/user/wallet_share" },
-  { title: "Benchmarking", href: "/user/benchmarking" },
-  { title: "Lifecycle", href: "/user/lifecycling" },
+  { title: "Overview", href: "/user/home/overview" },
+  { title: "Risk And Lending", href: "/user/home/risk_and_lending" },
+  { title: "Trends", href: "/user/home/trends" },
+  { title: "Increase Product Usage", href: "/user/home/increase_product_usage" },
+  { title: "Grow Merchant Rewards", href: "/user/home/grow_merchant_rewards" },
+  { title: "Save Customer Money", href: "/user/home/save_customer_money" },
+  { title: "Wallet Share", href: "/user/home/wallet_share" },
+  { title: "Benchmarking", href: "/user/home/benchmarking" },
+  { title: "Lifecycle", href: "/user/home/lifecycling" },
 ];
 export default function HomePage() {
   const router = useRouter();

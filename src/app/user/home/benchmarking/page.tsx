@@ -2,7 +2,8 @@
 import React, { useEffect, useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
-import { useRouter } from "next/navigation";
+import { useRouter } from 'next/navigation';
+
 type Customer = {
   customer_id: string;
   age: number;
@@ -11,32 +12,35 @@ type Customer = {
 };
 
 type BenchmarkingData = {
-  sample_customers: Customer[];
-  total_customers: number;
+  customer: Customer;
+  peer_count: number;
   benchmarking: string;
 };
 
 export default function BenchmarkingPage() {
   const [data, setData] = useState<BenchmarkingData | null>(null);
-  const [activeTab, setActiveTab] = useState<'sample' | 'total' | 'benchmarking'>('sample');
+  const [activeTab, setActiveTab] = useState<'customer' | 'peers' | 'benchmarking'>('customer');
   const router = useRouter();
-  useEffect(() => {
-    const isLoggedIn = localStorage.getItem("auth") === "true";
-    const isClient = localStorage.getItem("access") == "client";
 
-    console.log(localStorage);
+  useEffect(() => {
+    const isLoggedIn = localStorage.getItem('auth') === 'true';
+    const isUser = localStorage.getItem('access') === 'user';
+
     if (!isLoggedIn) {
-      router.push("/login");
+      router.push('/login');
     }
 
-    if(!isClient) {
-      alert("you are not client financial institution");
-      router.push("/login");
+    if (!isUser) {
+      alert('You are not authorized as a user.');
+      router.push('/login');
     }
   }, [router]);
 
   useEffect(() => {
-    fetch('http://34.9.145.33:8000/api/client/benchmarking/')
+    const email = localStorage.getItem('email');
+    if (!email) return;
+
+    fetch(`http://34.9.145.33:8000/api/user/benchmarking/?email=${email}`)
       .then((res) => res.json())
       .then(setData)
       .catch((err) => console.error('Failed to load benchmarking data:', err));
@@ -44,33 +48,33 @@ export default function BenchmarkingPage() {
 
   return (
     <div className="p-6 max-w-7xl mx-auto">
-      <h1 className="text-3xl font-bold mb-6">Customer Benchmarking</h1>
+      <h1 className="text-3xl font-bold mb-6">Your Financial Benchmarking</h1>
 
       <div className="flex space-x-4 mb-4">
         <button
-          className={`px-4 py-2 rounded ${activeTab === 'sample' ? 'bg-blue-600 text-white' : 'bg-gray-200'}`}
-          onClick={() => setActiveTab('sample')}
+          className={`px-4 py-2 rounded ${activeTab === 'customer' ? 'bg-blue-600 text-white' : 'bg-gray-200'}`}
+          onClick={() => setActiveTab('customer')}
         >
-          Sample Customers
+          Your Profile
         </button>
         <button
-          className={`px-4 py-2 rounded ${activeTab === 'total' ? 'bg-blue-600 text-white' : 'bg-gray-200'}`}
-          onClick={() => setActiveTab('total')}
+          className={`px-4 py-2 rounded ${activeTab === 'peers' ? 'bg-blue-600 text-white' : 'bg-gray-200'}`}
+          onClick={() => setActiveTab('peers')}
         >
-          Total Customers
+          Peer Count
         </button>
         <button
           className={`px-4 py-2 rounded ${activeTab === 'benchmarking' ? 'bg-blue-600 text-white' : 'bg-gray-200'}`}
           onClick={() => setActiveTab('benchmarking')}
         >
-          Benchmarking Analysis
+          Benchmarking Insights
         </button>
       </div>
 
       <div className="bg-white p-4 rounded shadow min-h-[300px]">
         {!data && <p className="text-gray-500">Loading...</p>}
 
-        {data && activeTab === 'sample' && (
+        {data && activeTab === 'customer' && (
           <div className="overflow-x-auto mb-6">
             <table className="min-w-full border border-gray-300">
               <thead className="bg-gray-100">
@@ -82,22 +86,20 @@ export default function BenchmarkingPage() {
                 </tr>
               </thead>
               <tbody>
-                {data.sample_customers.map((customer) => (
-                  <tr key={customer.customer_id} className="hover:bg-gray-50">
-                    <td className="p-2 border">{customer.customer_id}</td>
-                    <td className="p-2 border">{customer.age}</td>
-                    <td className="p-2 border">{customer.income_category}</td>
-                    <td className="p-2 border">{customer.state}</td>
-                  </tr>
-                ))}
+                <tr className="hover:bg-gray-50">
+                  <td className="p-2 border">{data.customer.customer_id}</td>
+                  <td className="p-2 border">{data.customer.age}</td>
+                  <td className="p-2 border">{data.customer.income_category}</td>
+                  <td className="p-2 border">{data.customer.state}</td>
+                </tr>
               </tbody>
             </table>
           </div>
         )}
 
-        {data && activeTab === 'total' && (
+        {data && activeTab === 'peers' && (
           <div className="text-lg font-semibold text-gray-800">
-            Total Customers: <span className="text-blue-600">{data.total_customers}</span>
+            Matching Peers: <span className="text-blue-600">{data.peer_count}</span>
           </div>
         )}
 

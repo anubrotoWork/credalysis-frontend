@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import { useRouter } from "next/navigation";
 
 // type RewardTransaction = {
 //   transaction_id: string;
@@ -18,6 +19,22 @@ type MerchantRewardsData = {
 export default function ClientMerchantRewardsPage() {
   const [data, setData] = useState<MerchantRewardsData | null>(null);
   const [activeTab, setActiveTab] = useState<'transactions' | 'analysis'>('transactions');
+
+  const router = useRouter();
+    useEffect(() => {
+      const isLoggedIn = localStorage.getItem("auth") === "true";
+      const isClient = localStorage.getItem("access") == "client";
+  
+      console.log(localStorage);
+      if (!isLoggedIn) {
+        router.push("/login");
+      }
+  
+      if(!isClient) {
+        alert("you are not client financial institution");
+        router.push("/login");
+      }
+    }, [router]);
 
   useEffect(() => {
     fetch('http://34.9.145.33:8000/api/client/grow_merchant_rewards/')

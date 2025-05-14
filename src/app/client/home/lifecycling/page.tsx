@@ -1,7 +1,8 @@
-'use client';
-import React, { useEffect, useState } from 'react';
-import ReactMarkdown from 'react-markdown';
-import remarkGfm from 'remark-gfm';
+"use client";
+import React, { useEffect, useState } from "react";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
+import { useRouter } from "next/navigation";
 type Customer = {
   customer_id: string;
   age: number;
@@ -17,13 +18,31 @@ type LifecycleData = {
 
 export default function LifecyclePage() {
   const [data, setData] = useState<LifecycleData | null>(null);
-  const [activeTab, setActiveTab] = useState<'sample' | 'total' | 'lifecycle'>('sample');
+  const [activeTab, setActiveTab] = useState<"sample" | "total" | "lifecycle">(
+    "sample"
+  );
+
+  const router = useRouter();
+  useEffect(() => {
+    const isLoggedIn = localStorage.getItem("auth") === "true";
+    const isClient = localStorage.getItem("access") == "client";
+
+    console.log(localStorage);
+    if (!isLoggedIn) {
+      router.push("/login");
+    }
+
+    if (!isClient) {
+      alert("you are not client financial institution");
+      router.push("/login");
+    }
+  }, [router]);
 
   useEffect(() => {
-    fetch('http://34.9.145.33:8000/api/client/lifecycle/')
+    fetch("http://34.9.145.33:8000/api/client/lifecycle/")
       .then((res) => res.json())
       .then(setData)
-      .catch((err) => console.error('Failed to load lifecycle data:', err));
+      .catch((err) => console.error("Failed to load lifecycle data:", err));
   }, []);
 
   return (
@@ -32,20 +51,26 @@ export default function LifecyclePage() {
 
       <div className="flex space-x-4 mb-4">
         <button
-          className={`px-4 py-2 rounded ${activeTab === 'sample' ? 'bg-blue-600 text-white' : 'bg-gray-200'}`}
-          onClick={() => setActiveTab('sample')}
+          className={`px-4 py-2 rounded ${
+            activeTab === "sample" ? "bg-blue-600 text-white" : "bg-gray-200"
+          }`}
+          onClick={() => setActiveTab("sample")}
         >
           Sample Customers
         </button>
         <button
-          className={`px-4 py-2 rounded ${activeTab === 'total' ? 'bg-blue-600 text-white' : 'bg-gray-200'}`}
-          onClick={() => setActiveTab('total')}
+          className={`px-4 py-2 rounded ${
+            activeTab === "total" ? "bg-blue-600 text-white" : "bg-gray-200"
+          }`}
+          onClick={() => setActiveTab("total")}
         >
           Total Customers
         </button>
         <button
-          className={`px-4 py-2 rounded ${activeTab === 'lifecycle' ? 'bg-blue-600 text-white' : 'bg-gray-200'}`}
-          onClick={() => setActiveTab('lifecycle')}
+          className={`px-4 py-2 rounded ${
+            activeTab === "lifecycle" ? "bg-blue-600 text-white" : "bg-gray-200"
+          }`}
+          onClick={() => setActiveTab("lifecycle")}
         >
           Lifecycle Strategy
         </button>
@@ -54,7 +79,7 @@ export default function LifecyclePage() {
       <div className="bg-white p-4 rounded shadow min-h-[300px]">
         {!data && <p className="text-gray-500">Loading...</p>}
 
-        {data && activeTab === 'sample' && (
+        {data && activeTab === "sample" && (
           <div className="overflow-x-auto">
             <table className="min-w-full border border-gray-300">
               <thead className="bg-gray-100">
@@ -79,16 +104,17 @@ export default function LifecyclePage() {
           </div>
         )}
 
-        {data && activeTab === 'total' && (
+        {data && activeTab === "total" && (
           <div className="text-lg font-semibold text-gray-800">
-            Total Customers: <span className="text-blue-600">{data.total_customers}</span>
+            Total Customers:{" "}
+            <span className="text-blue-600">{data.total_customers}</span>
           </div>
         )}
 
-        {data && activeTab === 'lifecycle' && (
+        {data && activeTab === "lifecycle" && (
           <div className="prose max-w-none overflow-y-auto max-h-[600px] whitespace-pre-wrap text-gray-800">
             <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                {data.lifecycle}
+              {data.lifecycle}
             </ReactMarkdown>
           </div>
         )}

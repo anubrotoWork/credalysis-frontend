@@ -1,8 +1,8 @@
-'use client';
-import React, { useEffect, useState } from 'react';
-import ReactMarkdown from 'react-markdown';
-import remarkGfm from 'remark-gfm';
-
+"use client";
+import React, { useEffect, useState } from "react";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
+import { useRouter } from "next/navigation";
 type OverviewData = {
   customer_count: number;
   insight_count: number;
@@ -11,13 +11,28 @@ type OverviewData = {
 
 export default function OverviewPage() {
   const [data, setData] = useState<OverviewData | null>(null);
-  const [activeTab, setActiveTab] = useState<'counts' | 'summary'>('counts');
+  const [activeTab, setActiveTab] = useState<"counts" | "summary">("counts");
+  const router = useRouter();
+  useEffect(() => {
+    const isLoggedIn = localStorage.getItem("auth") === "true";
+    const isClient = localStorage.getItem("access") == "client";
+
+    console.log(localStorage);
+    if (!isLoggedIn) {
+      router.push("/login");
+    }
+
+    if (!isClient) {
+      alert("you are not client financial institution");
+      router.push("/login");
+    }
+  }, [router]);
 
   useEffect(() => {
-    fetch('http://34.9.145.33:8000/api/client/overview/')
+    fetch("http://34.9.145.33:8000/api/client/overview/")
       .then((res) => res.json())
       .then(setData)
-      .catch((err) => console.error('Failed to load overview data:', err));
+      .catch((err) => console.error("Failed to load overview data:", err));
   }, []);
 
   return (
@@ -26,14 +41,18 @@ export default function OverviewPage() {
 
       <div className="flex space-x-4 mb-4">
         <button
-          className={`px-4 py-2 rounded ${activeTab === 'counts' ? 'bg-blue-600 text-white' : 'bg-gray-200'}`}
-          onClick={() => setActiveTab('counts')}
+          className={`px-4 py-2 rounded ${
+            activeTab === "counts" ? "bg-blue-600 text-white" : "bg-gray-200"
+          }`}
+          onClick={() => setActiveTab("counts")}
         >
           Counts
         </button>
         <button
-          className={`px-4 py-2 rounded ${activeTab === 'summary' ? 'bg-blue-600 text-white' : 'bg-gray-200'}`}
-          onClick={() => setActiveTab('summary')}
+          className={`px-4 py-2 rounded ${
+            activeTab === "summary" ? "bg-blue-600 text-white" : "bg-gray-200"
+          }`}
+          onClick={() => setActiveTab("summary")}
         >
           Summary
         </button>
@@ -42,14 +61,20 @@ export default function OverviewPage() {
       <div className="bg-white p-4 rounded shadow min-h-[300px]">
         {!data && <p className="text-gray-500">Loading...</p>}
 
-        {data && activeTab === 'counts' && (
+        {data && activeTab === "counts" && (
           <div className="space-y-4 text-lg font-semibold text-gray-800">
-            <p>Total Customers: <span className="text-blue-600">{data.customer_count}</span></p>
-            <p>Total Insights: <span className="text-blue-600">{data.insight_count}</span></p>
+            <p>
+              Total Customers:{" "}
+              <span className="text-blue-600">{data.customer_count}</span>
+            </p>
+            <p>
+              Total Insights:{" "}
+              <span className="text-blue-600">{data.insight_count}</span>
+            </p>
           </div>
         )}
 
-        {data && activeTab === 'summary' && (
+        {data && activeTab === "summary" && (
           <div className="prose max-w-none overflow-y-auto max-h-[600px] whitespace-pre-wrap text-gray-800">
             <ReactMarkdown remarkPlugins={[remarkGfm]}>
               {data.summary}

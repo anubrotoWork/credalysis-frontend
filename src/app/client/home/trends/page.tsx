@@ -1,8 +1,8 @@
-'use client';
-import React, { useEffect, useState } from 'react';
-import ReactMarkdown from 'react-markdown';
-import remarkGfm from 'remark-gfm';
-
+"use client";
+import React, { useEffect, useState } from "react";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
+import { useRouter } from "next/navigation";
 // type Trend = {
 //   customer_id: string;
 //   insight_date: string;
@@ -19,13 +19,29 @@ type TrendData = {
 
 export default function ClientTrendsPage() {
   const [data, setData] = useState<TrendData | null>(null);
-  const [activeTab, setActiveTab] = useState<'trends' | 'analysis'>('trends');
+  const [activeTab, setActiveTab] = useState<"trends" | "analysis">("trends");
+
+  const router = useRouter();
+  useEffect(() => {
+    const isLoggedIn = localStorage.getItem("auth") === "true";
+    const isClient = localStorage.getItem("access") == "client";
+
+    console.log(localStorage);
+    if (!isLoggedIn) {
+      router.push("/login");
+    }
+
+    if (!isClient) {
+      alert("you are not client financial institution");
+      router.push("/login");
+    }
+  }, [router]);
 
   useEffect(() => {
-    fetch('http://34.9.145.33:8000/api/client/trends/')
+    fetch("http://34.9.145.33:8000/api/client/trends/")
       .then((res) => res.json())
       .then(setData)
-      .catch((err) => console.error('Failed to load trend data:', err));
+      .catch((err) => console.error("Failed to load trend data:", err));
   }, []);
 
   return (
@@ -34,14 +50,18 @@ export default function ClientTrendsPage() {
 
       <div className="flex space-x-4 mb-4">
         <button
-          className={`px-4 py-2 rounded ${activeTab === 'trends' ? 'bg-blue-600 text-white' : 'bg-gray-200'}`}
-          onClick={() => setActiveTab('trends')}
+          className={`px-4 py-2 rounded ${
+            activeTab === "trends" ? "bg-blue-600 text-white" : "bg-gray-200"
+          }`}
+          onClick={() => setActiveTab("trends")}
         >
           Financial Trends
         </button>
         <button
-          className={`px-4 py-2 rounded ${activeTab === 'analysis' ? 'bg-blue-600 text-white' : 'bg-gray-200'}`}
-          onClick={() => setActiveTab('analysis')}
+          className={`px-4 py-2 rounded ${
+            activeTab === "analysis" ? "bg-blue-600 text-white" : "bg-gray-200"
+          }`}
+          onClick={() => setActiveTab("analysis")}
         >
           Trend Analysis
         </button>
@@ -50,16 +70,17 @@ export default function ClientTrendsPage() {
       <div className="bg-white p-4 rounded shadow min-h-[300px]">
         {!data && <p className="text-gray-500">Loading...</p>}
 
-        {data && activeTab === 'trends' && (
+        {data && activeTab === "trends" && (
           <div className="text-lg font-semibold text-gray-800">
-            Total Data Points: <span className="text-blue-600">{data.data_points}</span>
+            Total Data Points:{" "}
+            <span className="text-blue-600">{data.data_points}</span>
           </div>
         )}
 
-        {data && activeTab === 'analysis' && (
+        {data && activeTab === "analysis" && (
           <div className="prose max-w-none overflow-y-auto max-h-[600px] whitespace-pre-wrap text-gray-800">
             <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                {data.trend_analysis}
+              {data.trend_analysis}
             </ReactMarkdown>
           </div>
         )}
