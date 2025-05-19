@@ -21,6 +21,7 @@ export default function LoansPage() {
   const [loading, setLoading] = useState(true);
   const [email, setEmail] = useState<string | null>(null);
   const backendApiUrl = "http://34.9.145.33:8000";
+
   useEffect(() => {
     const storedEmail = localStorage.getItem('email');
     setEmail(storedEmail);
@@ -51,8 +52,7 @@ export default function LoansPage() {
           setLoading(false);
         });
     } else if (email === null && typeof window !== 'undefined') {
-        // Still waiting for email from localStorage or it's not set
-        setLoading(false); // Stop loading if no email after initial check
+        setLoading(false); 
     }
   }, [email]);
 
@@ -64,55 +64,56 @@ export default function LoansPage() {
         month: 'short',
         day: 'numeric',
       });
-    } catch (e) {
-      return dateString;
+    } catch (e) { 
+      console.error(`Error formatting date '${dateString}':`, e); // Example of using 'e'
+      return dateString; 
     }
   };
 
   return (
-    <div className="min-h-screen bg-gray-900 py-8 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-gray-100 py-8 px-4 sm:px-6 lg:px-8">
       <div className="max-w-5xl mx-auto">
-        <div className="bg-gray-800 shadow-xl rounded-lg p-6">
-          <h1 className="text-3xl font-bold mb-8 text-gray-100 text-center">My Loans</h1>
+        <div className="bg-white shadow-lg rounded-lg p-6">
+          <h1 className="text-3xl font-bold mb-8 text-indigo-600 text-center">My Loans</h1>
 
           {loading ? (
-            <div className="text-center py-10 text-gray-300">Loading loans...</div>
+            <div className="text-center py-10 text-gray-700">Loading loans...</div>
           ) : loans.length === 0 ? (
-            <div className="text-center py-10 text-gray-400">
+            <div className="text-center py-10 text-gray-600">
               You currently have no active loans.
             </div>
           ) : (
-            <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-700">
-                <thead className="bg-gray-750">
+            <div className="overflow-x-auto rounded-lg border border-gray-200">
+              <table className="min-w-full divide-y divide-gray-200">
+                <thead className="bg-gray-50">
                   <tr>
-                    <th scope="col" className="px-4 py-3 text-left text-xs font-semibold text-gray-300 uppercase tracking-wider">Product Name</th>
-                    <th scope="col" className="px-4 py-3 text-left text-xs font-semibold text-gray-300 uppercase tracking-wider">Balance</th>
-                    <th scope="col" className="px-4 py-3 text-left text-xs font-semibold text-gray-300 uppercase tracking-wider">Interest Rate</th>
-                    <th scope="col" className="px-4 py-3 text-left text-xs font-semibold text-gray-300 uppercase tracking-wider">Start Date</th>
-                    <th scope="col" className="px-4 py-3 text-left text-xs font-semibold text-gray-300 uppercase tracking-wider">End Date</th>
-                    <th scope="col" className="px-4 py-3 text-left text-xs font-semibold text-gray-300 uppercase tracking-wider">Status</th>
+                    <th scope="col" className="px-4 py-3 text-left text-xs font-semibold text-indigo-700 uppercase tracking-wider">Product Name</th>
+                    <th scope="col" className="px-4 py-3 text-left text-xs font-semibold text-indigo-700 uppercase tracking-wider">Balance</th>
+                    <th scope="col" className="px-4 py-3 text-left text-xs font-semibold text-indigo-700 uppercase tracking-wider">Interest Rate</th>
+                    <th scope="col" className="px-4 py-3 text-left text-xs font-semibold text-indigo-700 uppercase tracking-wider">Start Date</th>
+                    <th scope="col" className="px-4 py-3 text-left text-xs font-semibold text-indigo-700 uppercase tracking-wider">End Date</th>
+                    <th scope="col" className="px-4 py-3 text-left text-xs font-semibold text-indigo-700 uppercase tracking-wider">Status</th>
                   </tr>
                 </thead>
-                <tbody className="bg-gray-800 divide-y divide-gray-700">
+                <tbody className="bg-white divide-y divide-gray-200">
                   {loans.map((loan) => (
-                    <tr key={loan.product_id} className="hover:bg-gray-750 transition-colors duration-150">
-                      <td className="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-100">{loan.product_name}</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-200">
+                    <tr key={loan.product_id} className="hover:bg-indigo-50 transition-colors duration-150">
+                      <td className="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900">{loan.product_name}</td>
+                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-700">
                         ${loan.balance.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                       </td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-200">
+                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-700">
                         {loan.interest_rate !== null && loan.interest_rate !== undefined ? `${loan.interest_rate.toFixed(2)}%` : 'N/A'}
                       </td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-300">{formatDate(loan.start_date)}</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-300">{formatDate(loan.end_date)}</td>
+                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-600">{formatDate(loan.start_date)}</td>
+                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-600">{formatDate(loan.end_date)}</td>
                       <td className="px-4 py-3 whitespace-nowrap text-sm">
                         <span className={`px-2.5 py-0.5 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                          loan.status?.toLowerCase() === 'active' ? 'bg-green-700 text-green-100' :
-                          loan.status?.toLowerCase() === 'paid off' ? 'bg-blue-700 text-blue-100' :
-                          loan.status?.toLowerCase() === 'defaulted' ? 'bg-red-700 text-red-100' :
-                          loan.status?.toLowerCase() === 'pending' ? 'bg-yellow-700 text-yellow-100' :
-                          'bg-gray-600 text-gray-100'
+                          loan.status?.toLowerCase() === 'active' ? 'bg-green-100 text-green-700' :
+                          loan.status?.toLowerCase() === 'paid off' ? 'bg-blue-100 text-blue-700' :
+                          loan.status?.toLowerCase() === 'defaulted' ? 'bg-red-100 text-red-700' :
+                          loan.status?.toLowerCase() === 'pending' ? 'bg-yellow-100 text-yellow-700' :
+                          'bg-gray-100 text-gray-700' // Default/Fallback badge
                         }`}>
                           {loan.status || 'N/A'}
                         </span>

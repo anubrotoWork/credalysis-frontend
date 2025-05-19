@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import { useState, useEffect, JSX } from "react";
 import { useRouter } from "next/navigation";
@@ -17,6 +17,15 @@ type PredictFormType = {
   transaction_frequency: string;
   average_transaction_amount: string;
 };
+
+// Helper function to convert snake_case to Title Case
+const toTitleCase = (str: string) =>
+  str
+    .replace(/_/g, " ")
+    .replace(
+      /\w\S*/g,
+      (txt) => txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase()
+    );
 
 export default function RiskLevelPage() {
   const router = useRouter();
@@ -54,13 +63,6 @@ export default function RiskLevelPage() {
     }
   }, [router]);
 
-//   const handleLogout = () => {
-//     localStorage.removeItem("auth");
-//     localStorage.removeItem("email");
-//     localStorage.removeItem("access");
-//     router.push("/login");
-//   };
-
   // --- Handlers for tabs ---
 
   // 1. Predict Risk Level
@@ -71,7 +73,7 @@ export default function RiskLevelPage() {
   const handlePredictSubmit = async () => {
     setPredictResult("Loading...");
     try {
-      const response = await fetch(`${backendApiUrl}/model/risk_level/testing`, {
+      const response = await fetch(`${backendApiUrl}/model/risk_level/testing`, { // Kept /testing as in original
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(
@@ -85,7 +87,7 @@ export default function RiskLevelPage() {
       });
       const result = await response.json();
       setPredictResult(
-        result.predicted_risk_level
+        result.predicted_risk_level // Changed from predicted_credit_rating
           ? `Predicted Risk Level: ${result.predicted_risk_level}`
           : JSON.stringify(result)
       );
@@ -108,7 +110,7 @@ export default function RiskLevelPage() {
       const result = await response.json();
       setPerfResult(
         result.classification_report
-          ? <pre className="text-xs overflow-auto">{JSON.stringify(result.classification_report, null, 2)}</pre>
+          ? <pre className="text-xs overflow-auto bg-white p-2 rounded shadow-inner">{JSON.stringify(result.classification_report, null, 2)}</pre>
           : JSON.stringify(result)
       );
     } catch (error) {
@@ -138,35 +140,35 @@ export default function RiskLevelPage() {
     }
   };
 
-  // --- UI ---
+  // --- UI Styling Constants (from the beautified Credit Report example) ---
+  const commonButtonClasses = "flex-1 py-3 px-3 text-sm font-medium rounded-lg transition-all duration-150 ease-in-out focus:outline-none";
+  const activeTabClasses = `${commonButtonClasses} bg-white text-indigo-600 shadow-lg hover:shadow-xl hover:bg-indigo-50 transform hover:-translate-y-1 hover:scale-105 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-1 focus:ring-offset-white`;
+  const inactiveTabClasses = `${commonButtonClasses} bg-blue-100 text-blue-700 hover:bg-blue-200 focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50`;
+  const actionButtonClasses = "w-full flex justify-center py-2.5 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-500 hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-150";
+  const resultContainerClasses = "mt-6 p-4 bg-gray-50 rounded-md border border-gray-200 text-sm text-gray-700 break-words shadow-inner";
+
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-green-50 px-2">
-      <h1 className="text-2xl font-bold text-green-700 mb-2 text-center">
+    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 px-4 py-10">
+      <h1 className="text-4xl font-bold text-gray-800 mb-8 text-center">
         Risk Level Model Manager
       </h1>
-      {/* <button
-        onClick={handleLogout}
-        className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 mb-4"
-      >
-        Sign Out
-      </button> */}
 
       {/* Tabs */}
-      <div className="flex w-full max-w-md mb-4">
+      <div className="flex w-full max-w-lg mb-8 gap-2">
         <button
-          className={`flex-1 py-2 rounded-tl rounded-bl ${tab === "predict" ? "bg-green-600 text-white" : "bg-green-100 text-green-700"}`}
+          className={`${tab === "predict" ? activeTabClasses : inactiveTabClasses}`}
           onClick={() => setTab("predict")}
         >
           Predict Risk Level
         </button>
         <button
-          className={`flex-1 py-2 ${tab === "performance" ? "bg-green-600 text-white" : "bg-green-100 text-green-700"}`}
+          className={`${tab === "performance" ? activeTabClasses : inactiveTabClasses}`}
           onClick={() => setTab("performance")}
         >
           Model Performance
         </button>
         <button
-          className={`flex-1 py-2 rounded-tr rounded-br ${tab === "update" ? "bg-green-600 text-white" : "bg-green-100 text-green-700"}`}
+          className={`${tab === "update" ? activeTabClasses : inactiveTabClasses}`}
           onClick={() => setTab("update")}
         >
           Update Model
@@ -174,62 +176,79 @@ export default function RiskLevelPage() {
       </div>
 
       {/* Tab Content */}
-      <div className="w-full max-w-md bg-white rounded shadow-md p-4">
+      <div className="w-full max-w-lg bg-white rounded-lg shadow-xl p-8">
         {tab === "predict" && (
           <div>
-            <h2 className="text-lg font-semibold mb-2">Predict Risk Level</h2>
-            <div className="grid grid-cols-1 gap-2">
+            <h2 className="text-xl font-semibold text-gray-800 mb-6 pb-3 border-b border-gray-300">
+              Predict Risk Level
+            </h2>
+            <div className="space-y-5 mb-6">
               {Object.keys(predictForm).map((field) => (
-                <input
-                  key={field}
-                  name={field}
-                  type="number"
-                  step="any"
-                  placeholder={field.replace(/_/g, " ")}
-                  value={predictForm[field]}
-                  onChange={handlePredictChange}
-                  className="border rounded px-2 py-1"
-                />
+                <div key={field}>
+                  <label htmlFor={field} className="block text-sm font-medium text-gray-700 mb-1.5">
+                    {toTitleCase(field)}
+                  </label>
+                  <input
+                    id={field}
+                    name={field}
+                    type="number"
+                    step="any"
+                    placeholder={toTitleCase(field)}
+                    value={predictForm[field as keyof PredictFormType]} // Accessing typed form
+                    onChange={handlePredictChange}
+                    className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm placeholder-gray-400 appearance-none [-moz-appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                  />
+                </div>
               ))}
             </div>
             <button
               onClick={handlePredictSubmit}
-              className="mt-4 bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 w-full"
+              className={actionButtonClasses}
             >
               Predict
             </button>
             {predictResult && (
-              <div className="mt-2 text-center">{predictResult}</div>
+              <div className={resultContainerClasses}>
+                {predictResult}
+              </div>
             )}
           </div>
         )}
 
         {tab === "performance" && (
           <div>
-            <h2 className="text-lg font-semibold mb-2">Model Performance</h2>
+            <h2 className="text-xl font-semibold text-gray-800 mb-6 pb-3 border-b border-gray-300">
+              Model Performance
+            </h2>
             <button
               onClick={handlePerfSubmit}
-              className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 w-full"
+              className={actionButtonClasses}
             >
               Evaluate Model
             </button>
             {perfResult && (
-              <div className="mt-2">{perfResult}</div>
+              <div className={resultContainerClasses}>
+                {perfResult}
+              </div>
             )}
           </div>
         )}
 
         {tab === "update" && (
           <div>
-            <h2 className="text-lg font-semibold mb-2">Update Model</h2>
+            <h2 className="text-xl font-semibold text-gray-800 mb-6 pb-3 border-b border-gray-300">
+              Update Model
+            </h2>
             <button
               onClick={handleUpdateSubmit}
-              className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 w-full"
+              className={actionButtonClasses}
             >
               Retrain Model from Database
             </button>
             {updateResult && (
-              <div className="mt-2 text-center">{updateResult}</div>
+              <div className={resultContainerClasses}>
+                {updateResult}
+              </div>
             )}
           </div>
         )}

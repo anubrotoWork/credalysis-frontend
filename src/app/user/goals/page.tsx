@@ -28,7 +28,7 @@ interface AgentResponse {
 
 // Helper functions for formatting agent responses
 const formatReviewResponse = (text: string): React.JSX.Element => (
-  <p className="text-gray-300">{text}</p>
+  <p className="text-gray-700">{text}</p>
 );
 
 const formatAdviceResponse = (text: string): React.JSX.Element => {
@@ -41,14 +41,14 @@ const formatAdviceResponse = (text: string): React.JSX.Element => {
           return (
             <ul key={i} className="list-disc pl-5 space-y-2">
               {items.map((item, j) => (
-                <li key={j} className="text-gray-300">{item.trim()}</li>
+                <li key={j} className="text-gray-700">{item.trim()}</li>
               ))}
             </ul>
           );
         } else if (section.startsWith('Hi') || section.includes('Clarence')) {
-          return <p key={i} className="text-gray-200 font-medium">{section}</p>;
+          return <p key={i} className="text-gray-800 font-medium">{section}</p>;
         } else {
-          return <p key={i} className="text-gray-300">{section}</p>;
+          return <p key={i} className="text-gray-700">{section}</p>;
         }
       })}
     </div>
@@ -63,7 +63,7 @@ const formatScenarioResponse = (text: string): React.JSX.Element => {
     if (!part) continue;
     if (i % 2 === 1) {
       elements.push(
-        <h3 key={`heading-${i}`} className="font-bold text-lg text-indigo-400 mt-4 mb-2">
+        <h3 key={`heading-${i}`} className="font-bold text-lg text-indigo-600 mt-4 mb-2">
           {part}
         </h3>
       );
@@ -75,7 +75,7 @@ const formatScenarioResponse = (text: string): React.JSX.Element => {
             .split(/\*\s+/)
             .filter(item => item.trim())
             .map((item, lIndex) => (
-              <li key={`item-${i}-${pIndex}-${lIndex}`} className="ml-2 py-1 text-gray-300">
+              <li key={`item-${i}-${pIndex}-${lIndex}`} className="ml-2 py-1 text-gray-700">
                 {item.trim()}
               </li>
             ));
@@ -88,7 +88,7 @@ const formatScenarioResponse = (text: string): React.JSX.Element => {
           }
         } else if (paragraph.trim()) {
           elements.push(
-            <p key={`para-${i}-${pIndex}`} className="my-2 text-gray-300">
+            <p key={`para-${i}-${pIndex}`} className="my-2 text-gray-700">
               {paragraph.trim()}
             </p>
           );
@@ -158,25 +158,23 @@ export default function GoalsPage() {
       return;
     }
   
-    // Calculate or set defaults for required fields
     const now = new Date();
-    const todayStr = now.toISOString().split('T')[0]; // "YYYY-MM-DD"
+    const todayStr = now.toISOString().split('T')[0]; 
     const progress = newGoal.current_amount && newGoal.target_amount
       ? Math.round((Number(newGoal.current_amount) / Number(newGoal.target_amount)) * 100)
       : 0;
   
-    // Set all required fields for the backend
     const payload = {
       customer_email: email,
       goal_name: newGoal.goal_name,
-      goal_type: newGoal.goal_type || "General", // or add a field in your form
+      goal_type: newGoal.goal_type || "General",
       target_amount: newGoal.target_amount,
       current_amount: newGoal.current_amount || 0,
       progress_percent: progress,
-      target_date: newGoal.target_date || todayStr, // or add a field in your form
+      target_date: newGoal.target_date || todayStr,
       required_monthly_contribution: newGoal.required_monthly_contribution || 0,
       actual_monthly_contribution: newGoal.actual_monthly_contribution || 0,
-      on_track: progress >= 50, // or your own logic
+      on_track: progress >= 50, 
       status: "Active",
       priority: newGoal.priority || "Medium",
       last_updated: todayStr,
@@ -200,13 +198,12 @@ export default function GoalsPage() {
   const handleEditGoal = (index: number) => {
     setEditIndex(index);
     setEditGoal(goals[index]);
-    setEditOriginalGoalName(goals[index].goal_name); // Store original name
+    setEditOriginalGoalName(goals[index].goal_name);
   };
 
   const handleUpdateGoal = async () => {
     if (editIndex === null || !editGoal.goal_name) return;
     try {
-      // Use original goal name for URL, encode it
       const goalNameForUrl = encodeURIComponent(editOriginalGoalName || goals[editIndex].goal_name);
   
       await fetch(`${backendApiUrl}/users/goals/${email}/${goalNameForUrl}`, {
@@ -227,7 +224,6 @@ export default function GoalsPage() {
   const handleDeleteGoal = async (goal_name: string) => {
     if (!window.confirm("Are you sure you want to delete this goal?")) return;
     try {
-      // Always encode the goal name in the URL
       await fetch(`${backendApiUrl}/users/goals/${email}/${encodeURIComponent(goal_name)}`, {
         method: "DELETE",
       });
@@ -290,7 +286,7 @@ export default function GoalsPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-screen bg-gray-900">
+      <div className="flex items-center justify-center h-screen bg-gray-100">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-500"></div>
       </div>
     );
@@ -304,50 +300,50 @@ export default function GoalsPage() {
   };
 
   return (
-    <div className="bg-gray-900 min-h-screen py-8 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-6xl mx-auto p-6 bg-gray-800 rounded-lg shadow-xl">
-        <h1 className="text-3xl font-bold mb-8 text-gray-100 border-b border-gray-700 pb-4">Financial Goal Tracker</h1>
+    <div className="bg-gray-100 min-h-screen py-8 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-6xl mx-auto">
+        <h1 className="text-3xl font-bold mb-8 text-indigo-600 border-b border-gray-300 pb-4 text-center">Financial Goal Tracker</h1>
         <div className="grid md:grid-cols-3 gap-6">
           {/* Left Column: Goals Management */}
           <div className="md:col-span-1 space-y-6">
             {/* ADD NEW GOAL FORM */}
-            <div className="bg-gray-700 p-4 rounded-lg shadow-md">
-              <h2 className="text-xl font-semibold mb-4 text-gray-200">Add New Goal</h2>
+            <div className="bg-white p-6 rounded-lg shadow-lg">
+              <h2 className="text-xl font-semibold mb-4 text-indigo-700">Add New Goal</h2>
               <div className="space-y-3">
                 <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-1">Goal Name</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Goal Name</label>
                   <input
                     type="text"
                     placeholder="e.g., New Car, Vacation"
-                    className="w-full bg-gray-600 text-gray-100 border border-gray-500 p-2 rounded focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 focus:outline-none placeholder-gray-400"
+                    className="w-full bg-white text-gray-900 border border-gray-300 p-2 rounded focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 focus:outline-none placeholder-gray-500"
                     value={newGoal.goal_name || ''}
                     onChange={e => setNewGoal({ ...newGoal, goal_name: e.target.value })}
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-1">Target Amount ($)</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Target Amount ($)</label>
                   <input
                     type="number"
                     placeholder="5000"
-                    className="w-full bg-gray-600 text-gray-100 border border-gray-500 p-2 rounded focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 focus:outline-none placeholder-gray-400"
+                    className="w-full bg-white text-gray-900 border border-gray-300 p-2 rounded focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 focus:outline-none placeholder-gray-500"
                     value={newGoal.target_amount || ''}
                     onChange={e => setNewGoal({ ...newGoal, target_amount: Number(e.target.value) })}
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-1">Current Amount ($)</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Current Amount ($)</label>
                   <input
                     type="number"
                     placeholder="1000"
-                    className="w-full bg-gray-600 text-gray-100 border border-gray-500 p-2 rounded focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 focus:outline-none placeholder-gray-400"
+                    className="w-full bg-white text-gray-900 border border-gray-300 p-2 rounded focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 focus:outline-none placeholder-gray-500"
                     value={newGoal.current_amount || ''}
                     onChange={e => setNewGoal({ ...newGoal, current_amount: Number(e.target.value) })}
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-1">Priority</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Priority</label>
                   <select
-                    className="w-full bg-gray-600 text-gray-100 border border-gray-500 p-2 rounded focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 focus:outline-none"
+                    className="w-full bg-white text-gray-900 border border-gray-300 p-2 rounded focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 focus:outline-none"
                     value={newGoal.priority || ''}
                     onChange={e => setNewGoal({ ...newGoal, priority: e.target.value })}
                   >
@@ -366,34 +362,34 @@ export default function GoalsPage() {
               </div>
             </div>
             {/* EXISTING GOALS LIST */}
-            <div className="bg-gray-700 p-4 rounded-lg shadow-md">
-              <h2 className="text-xl font-semibold mb-4 text-gray-200">My Goals</h2>
+            <div className="bg-white p-6 rounded-lg shadow-lg">
+              <h2 className="text-xl font-semibold mb-4 text-indigo-700">My Goals</h2>
               {goals.length === 0 ? (
-                <p className="text-gray-400 italic">No goals yet. Add one above to get started!</p>
+                <p className="text-gray-600 italic">No goals yet. Add one above to get started!</p>
               ) : (
                 <div className="space-y-4">
                   {goals.map((goal, index) => (
-                    <div key={index} className="bg-gray-600 p-3 rounded-md shadow">
+                    <div key={index} className="bg-gray-50 p-3 rounded-md border border-gray-200 shadow-sm">
                       <div className="flex justify-between items-center">
-                        <h3 className="font-medium text-gray-100">{goal.goal_name}</h3>
-                        <span className={`text-xs font-bold px-2 py-1 rounded ${goal.on_track ? 'bg-green-700 text-green-100' : 'bg-red-700 text-red-100'}`}>
+                        <h3 className="font-medium text-gray-800">{goal.goal_name}</h3>
+                        <span className={`text-xs font-bold px-2 py-1 rounded ${goal.on_track ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
                           {goal.on_track ? 'On Track' : 'Off Track'}
                         </span>
                       </div>
                       <div className="mt-2">
-                        <div className="text-sm text-gray-300 flex justify-between">
+                        <div className="text-sm text-gray-700 flex justify-between">
                           <span>Progress: {goal.progress_percent}%</span>
                           <span>
                             ${goal.current_amount.toLocaleString()} / ${goal.target_amount.toLocaleString()}
                           </span>
                         </div>
-                        <div className="w-full bg-gray-500 rounded-full h-2 mt-1">
+                        <div className="w-full bg-gray-300 rounded-full h-2 mt-1">
                           <div
                             className={`${getProgressColor(goal.progress_percent)} h-2 rounded-full`}
                             style={{ width: `${goal.progress_percent}%` }}
                           ></div>
                         </div>
-                        <div className="flex justify-between text-xs text-gray-400 mt-2">
+                        <div className="flex justify-between text-xs text-gray-500 mt-2">
                           <span>Target: {goal.target_date ? new Date(goal.target_date).toLocaleDateString() : '-'}</span>
                           <span>Priority: {goal.priority}</span>
                         </div>
@@ -401,27 +397,27 @@ export default function GoalsPage() {
                       {editIndex === index ? (
                         <div className="mt-3 space-y-2">
                           <input
-                            className="w-full bg-gray-500 text-gray-100 border border-gray-400 p-1 rounded text-sm focus:ring-1 focus:ring-indigo-400"
+                            className="w-full bg-white text-gray-900 border border-gray-300 p-1 rounded text-sm focus:ring-1 focus:ring-indigo-400 focus:outline-none"
                             value={editGoal.goal_name || ''}
                             onChange={e => setEditGoal({ ...editGoal, goal_name: e.target.value })}
                             placeholder="Goal Name"
                           />
                           <input
                             type="number"
-                            className="w-full bg-gray-500 text-gray-100 border border-gray-400 p-1 rounded text-sm focus:ring-1 focus:ring-indigo-400"
+                            className="w-full bg-white text-gray-900 border border-gray-300 p-1 rounded text-sm focus:ring-1 focus:ring-indigo-400 focus:outline-none"
                             value={editGoal.target_amount || ''}
                             onChange={e => setEditGoal({ ...editGoal, target_amount: Number(e.target.value) })}
                             placeholder="Target Amount"
                           />
                           <input
                             type="number"
-                            className="w-full bg-gray-500 text-gray-100 border border-gray-400 p-1 rounded text-sm focus:ring-1 focus:ring-indigo-400"
+                            className="w-full bg-white text-gray-900 border border-gray-300 p-1 rounded text-sm focus:ring-1 focus:ring-indigo-400 focus:outline-none"
                             value={editGoal.current_amount || ''}
                             onChange={e => setEditGoal({ ...editGoal, current_amount: Number(e.target.value) })}
                             placeholder="Current Amount"
                           />
                           <select
-                            className="w-full bg-gray-500 text-gray-100 border border-gray-400 p-1 rounded text-sm focus:ring-1 focus:ring-indigo-400"
+                            className="w-full bg-white text-gray-900 border border-gray-300 p-1 rounded text-sm focus:ring-1 focus:ring-indigo-400 focus:outline-none"
                             value={editGoal.priority || ''}
                             onChange={e => setEditGoal({ ...editGoal, priority: e.target.value })}
                           >
@@ -433,13 +429,13 @@ export default function GoalsPage() {
                           <div className="flex gap-2">
                             <button
                               onClick={handleUpdateGoal}
-                              className="flex-1 bg-green-600 text-white py-1 rounded hover:bg-green-700 transition"
+                              className="flex-1 bg-green-600 text-white py-1 px-3 rounded hover:bg-green-700 transition focus:ring-2 focus:ring-green-500 focus:outline-none"
                             >
                               Save
                             </button>
                             <button
                               onClick={() => { setEditIndex(null); setEditGoal({}); }}
-                              className="flex-1 bg-gray-500 text-white py-1 rounded hover:bg-gray-600 transition"
+                              className="flex-1 bg-gray-200 text-gray-800 py-1 px-3 rounded hover:bg-gray-300 transition focus:ring-2 focus:ring-gray-400 focus:outline-none"
                             >
                               Cancel
                             </button>
@@ -449,13 +445,13 @@ export default function GoalsPage() {
                         <div className="flex gap-2 mt-3">
                           <button
                             onClick={() => handleEditGoal(index)}
-                            className="flex-1 bg-indigo-500 text-white py-1 rounded hover:bg-indigo-600 transition"
+                            className="flex-1 bg-indigo-500 text-white py-1 px-3 rounded hover:bg-indigo-600 transition focus:ring-2 focus:ring-indigo-400 focus:outline-none"
                           >
                             Edit
                           </button>
                           <button
                             onClick={() => handleDeleteGoal(goal.goal_name)}
-                            className="flex-1 bg-red-600 text-white py-1 rounded hover:bg-red-700 transition"
+                            className="flex-1 bg-red-500 text-white py-1 px-3 rounded hover:bg-red-600 transition focus:ring-2 focus:ring-red-400 focus:outline-none"
                           >
                             Delete
                           </button>
@@ -468,25 +464,25 @@ export default function GoalsPage() {
             </div>
           </div>
           {/* Right Columns: Agent Assistant */}
-          <div className="md:col-span-2 space-y-6">
-            <div className="bg-gray-700 p-4 rounded-lg shadow-md">
-              <h2 className="text-xl font-semibold mb-4 text-gray-200">AI Goal Assistant</h2>
-              <div className="flex space-x-2 mb-4">
+          <div className="md:col-span-2">
+            <div className="bg-white p-6 rounded-lg shadow-lg">
+              <h2 className="text-xl font-semibold mb-4 text-indigo-700">AI Goal Assistant</h2>
+              <div className="flex space-x-2 mb-4 border-b border-gray-200 pb-3">
                 <button
-                  className={`px-3 py-2 rounded text-sm font-medium ${activeTab === 'review' ? 'bg-indigo-600 text-white' : 'bg-gray-600 text-gray-200'}`}
-                  onClick={() => setActiveTab('review')}
+                  className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${activeTab === 'review' ? 'bg-indigo-600 text-white' : 'bg-white text-indigo-700 border border-indigo-300 hover:bg-indigo-50'}`}
+                  onClick={() => { setActiveTab('review'); setAgentResponse(null);}}
                 >
                   Review
                 </button>
                 <button
-                  className={`px-3 py-2 rounded text-sm font-medium ${activeTab === 'advice' ? 'bg-indigo-600 text-white' : 'bg-gray-600 text-gray-200'}`}
-                  onClick={() => setActiveTab('advice')}
+                  className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${activeTab === 'advice' ? 'bg-indigo-600 text-white' : 'bg-white text-indigo-700 border border-indigo-300 hover:bg-indigo-50'}`}
+                  onClick={() => { setActiveTab('advice'); setAgentResponse(null);}}
                 >
                   Advice
                 </button>
                 <button
-                  className={`px-3 py-2 rounded text-sm font-medium ${activeTab === 'scenario' ? 'bg-indigo-600 text-white' : 'bg-gray-600 text-gray-200'}`}
-                  onClick={() => setActiveTab('scenario')}
+                  className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${activeTab === 'scenario' ? 'bg-indigo-600 text-white' : 'bg-white text-indigo-700 border border-indigo-300 hover:bg-indigo-50'}`}
+                  onClick={() => { setActiveTab('scenario'); setAgentResponse(null);}}
                 >
                   Scenario
                 </button>
@@ -494,10 +490,10 @@ export default function GoalsPage() {
               {/* Tabs */}
               {activeTab === 'review' && (
                 <div>
-                  <label className="block mb-1 text-gray-300">Ask a question about your goals:</label>
+                  <label className="block mb-1 text-sm font-medium text-gray-700">Ask a question about your goals:</label>
                   <input
                     type="text"
-                    className="w-full bg-gray-600 text-gray-100 border border-gray-500 p-2 rounded mb-2"
+                    className="w-full bg-white text-gray-900 border border-gray-300 p-2 rounded mb-2 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 focus:outline-none placeholder-gray-500"
                     placeholder="e.g., Am I on track for my retirement goal?"
                     value={userQuestion}
                     onChange={e => setUserQuestion(e.target.value)}
@@ -505,34 +501,35 @@ export default function GoalsPage() {
                   <button
                     onClick={callGoalReview}
                     disabled={apiLoading}
-                    className="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 transition disabled:opacity-50"
+                    className="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 transition disabled:opacity-50 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
                   >
                     {apiLoading ? "Loading..." : "Ask"}
                   </button>
-                  {agentResponse?.answer && (
-                    <div className="mt-4">{formatReviewResponse(agentResponse.answer)}</div>
+                  {agentResponse?.answer && agentResponse?.email === email && activeTab === 'review' &&(
+                    <div className="mt-4 p-4 bg-gray-50 rounded border border-gray-200">{formatReviewResponse(agentResponse.answer)}</div>
                   )}
                 </div>
               )}
               {activeTab === 'advice' && (
                 <div>
+                  <p className="text-sm text-gray-700 mb-2">Get personalized advice based on your current goals.</p>
                   <button
                     onClick={callGoalAdvice}
                     disabled={apiLoading}
-                    className="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 transition disabled:opacity-50"
+                    className="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 transition disabled:opacity-50 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
                   >
                     {apiLoading ? "Loading..." : "Get Advice"}
                   </button>
-                  {agentResponse?.advice && (
-                    <div className="mt-4">{formatAdviceResponse(agentResponse.advice)}</div>
+                  {agentResponse?.advice && agentResponse?.email === email && activeTab === 'advice' && (
+                    <div className="mt-4 p-4 bg-gray-50 rounded border border-gray-200">{formatAdviceResponse(agentResponse.advice)}</div>
                   )}
                 </div>
               )}
               {activeTab === 'scenario' && (
                 <div>
-                  <label className="block mb-1 text-gray-300">Describe your scenario:</label>
+                  <label className="block mb-1 text-sm font-medium text-gray-700">Describe your scenario:</label>
                   <textarea
-                    className="w-full bg-gray-600 text-gray-100 border border-gray-500 p-2 rounded mb-2"
+                    className="w-full bg-white text-gray-900 border border-gray-300 p-2 rounded mb-2 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 focus:outline-none placeholder-gray-500"
                     placeholder="e.g., What if I increase my monthly savings by $200?"
                     rows={3}
                     value={scenarioDescription}
@@ -541,12 +538,12 @@ export default function GoalsPage() {
                   <button
                     onClick={callGoalScenario}
                     disabled={apiLoading}
-                    className="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 transition disabled:opacity-50"
+                    className="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 transition disabled:opacity-50 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
                   >
-                    {apiLoading ? "Analyzing..." : "Analyze"}
+                    {apiLoading ? "Analyzing..." : "Analyze Scenario"}
                   </button>
-                  {agentResponse?.analysis && (
-                    <div className="mt-4">{formatScenarioResponse(agentResponse.analysis)}</div>
+                  {agentResponse?.analysis && agentResponse?.email === email && activeTab === 'scenario' && (
+                    <div className="mt-4 p-4 bg-gray-50 rounded border border-gray-200">{formatScenarioResponse(agentResponse.analysis)}</div>
                   )}
                 </div>
               )}

@@ -13,7 +13,6 @@ export default function ProfilePage() {
     zip_code: ''
   });
   const [loading, setLoading] = useState(true);
-  // Ensure localStorage is accessed only on the client
   const [email, setEmail] = useState('');
 
   const backendApiUrl = "http://34.9.145.33:8000";
@@ -25,17 +24,10 @@ export default function ProfilePage() {
     }
   }, []);
 
-
   useEffect(() => {
     if (!email) {
-      // If email is not yet set (e.g., on initial render before client-side useEffect runs)
-      // or if no email is in localStorage, we might not want to fetch yet, or handle appropriately.
-      // For now, if email is empty, we might set loading to false or show a message.
-      // Or, ensure the fetch only runs when email is available.
-      if (!localStorage.getItem('email')) { // Check again to prevent fetching with an empty string if it wasn't set
-        setLoading(false); // Or set an error state
-        return;
-      }
+      setLoading(false);
+      return;
     }
 
     fetch(`${backendApiUrl}/users/profile/${email}`)
@@ -46,7 +38,6 @@ export default function ProfilePage() {
         return res.json();
       })
       .then(data => {
-        // Split full name into first and last if needed (fallback)
         if (data.name && !data.first_name) {
           const [first, ...last] = data.name.split(' ');
           data.first_name = first;
@@ -57,10 +48,9 @@ export default function ProfilePage() {
       })
       .catch(error => {
         console.error("Failed to fetch profile:", error);
-        // Optionally set an error state here to display to the user
         setLoading(false);
       });
-  }, [email]); // Depend on the email state
+  }, [email]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setProfile({ ...profile, [e.target.name]: e.target.value });
@@ -76,7 +66,6 @@ export default function ProfilePage() {
       last_name: profile.last_name,
       phone: profile.phone,
       address: profile.address,
-      // Assuming your backend might also want city, state, zip_code if they are editable
       city: profile.city,
       state: profile.state,
       zip_code: profile.zip_code,
@@ -91,7 +80,6 @@ export default function ProfilePage() {
       if (!res.ok) {
         throw new Error(`HTTP error! status: ${res.status}`);
       }
-      // const data = await res.json(); // If you need to process response
       alert('Profile updated!');
     } catch (error) {
       console.error("Failed to update profile:", error);
@@ -99,109 +87,106 @@ export default function ProfilePage() {
     }
   };
 
-  if (loading) return <div className="text-center mt-10 text-gray-100">Loading...</div>; // Added text color
+  if (loading) return <div className="text-center mt-10 text-gray-600">Loading...</div>;
 
-  // Added a wrapper div to ensure the dark background applies if this component doesn't fill the screen
-  // or if the parent page doesn't have a dark background.
-  // If your layout already handles the dark background, you might not need this outer div.
   return (
-    <div className="min-h-screen bg-gray-900 py-10 flex flex-col items-center"> {/* Outer wrapper for dark bg */}
-      <div className="max-w-2xl w-full p-6 bg-gray-800 rounded-lg shadow-md"> {/* Changed bg */}
-        <h1 className="text-2xl font-semibold mb-6 text-gray-100 text-center">My Profile</h1> {/* Added text color, increased mb, centered */}
+    <div className="min-h-screen bg-gray-100 py-10 flex flex-col items-center">
+      <div className="max-w-2xl w-full p-6 bg-white rounded-lg shadow-lg">
+        <h1 className="text-2xl font-semibold mb-6 text-gray-900 text-center">My Profile</h1>
         <div className="space-y-4">
           {/* First Name and Last Name side-by-side on larger screens */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label htmlFor="first_name" className="block text-sm font-medium text-gray-300">First Name</label> {/* Changed text color */}
+              <label htmlFor="first_name" className="block text-sm font-medium text-gray-700">First Name</label>
               <input
                 id="first_name"
                 name="first_name"
                 value={profile.first_name || ''}
                 onChange={handleChange}
-                className="w-full mt-1 p-2 border border-gray-600 bg-gray-700 text-gray-100 placeholder-gray-400 rounded" // Dark mode styles
+                className="w-full mt-1 p-2 border border-gray-300 bg-white text-gray-900 placeholder-gray-500 rounded"
               />
             </div>
             <div>
-              <label htmlFor="last_name" className="block text-sm font-medium text-gray-300">Last Name</label> {/* Changed text color */}
+              <label htmlFor="last_name" className="block text-sm font-medium text-gray-700">Last Name</label>
               <input
                 id="last_name"
                 name="last_name"
                 value={profile.last_name || ''}
                 onChange={handleChange}
-                className="w-full mt-1 p-2 border border-gray-600 bg-gray-700 text-gray-100 placeholder-gray-400 rounded" // Dark mode styles
+                className="w-full mt-1 p-2 border border-gray-300 bg-white text-gray-900 placeholder-gray-500 rounded"
               />
             </div>
           </div>
 
           <div>
-            <label htmlFor="email" className="block text-sm font-medium text-gray-300">Email</label> {/* Changed text color */}
+            <label htmlFor="email" className="block text-sm font-medium text-gray-700">Email</label>
             <input
               id="email"
               name="email"
               value={profile.email || ''}
               disabled
-              className="w-full mt-1 p-2 border border-gray-600 bg-gray-600 text-gray-400 rounded cursor-not-allowed" // Dark mode styles for disabled
+              className="w-full mt-1 p-2 border border-gray-300 bg-gray-200 text-gray-500 rounded cursor-not-allowed"
             />
           </div>
           <div>
-            <label htmlFor="phone" className="block text-sm font-medium text-gray-300">Phone</label> {/* Changed text color */}
+            <label htmlFor="phone" className="block text-sm font-medium text-gray-700">Phone</label>
             <input
               id="phone"
               name="phone"
               value={profile.phone || ''}
               onChange={handleChange}
-              className="w-full mt-1 p-2 border border-gray-600 bg-gray-700 text-gray-100 placeholder-gray-400 rounded" // Dark mode styles
+              className="w-full mt-1 p-2 border border-gray-300 bg-white text-gray-900 placeholder-gray-500 rounded"
             />
           </div>
           <div>
-            <label htmlFor="address" className="block text-sm font-medium text-gray-300">Address</label> {/* Changed text color */}
+            <label htmlFor="address" className="block text-sm font-medium text-gray-700">Address</label>
             <input
               id="address"
               name="address"
               value={profile.address || ''}
               onChange={handleChange}
-              className="w-full mt-1 p-2 border border-gray-600 bg-gray-700 text-gray-100 placeholder-gray-400 rounded" // Dark mode styles
+              className="w-full mt-1 p-2 border border-gray-300 bg-white text-gray-900 placeholder-gray-500 rounded"
             />
           </div>
 
           {/* City, State, ZIP Code in a row on larger screens */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
-              <label htmlFor="city" className="block text-sm font-medium text-gray-300">City</label> {/* Changed text color */}
+              <label htmlFor="city" className="block text-sm font-medium text-gray-700">City</label>
               <input
                 id="city"
                 name="city"
                 value={profile.city || ''}
                 onChange={handleChange}
-                className="w-full mt-1 p-2 border border-gray-600 bg-gray-700 text-gray-100 placeholder-gray-400 rounded" // Dark mode styles
+                className="w-full mt-1 p-2 border border-gray-300 bg-white text-gray-900 placeholder-gray-500 rounded"
               />
             </div>
             <div>
-              <label htmlFor="state" className="block text-sm font-medium text-gray-300">State</label> {/* Changed text color */}
+              <label htmlFor="state" className="block text-sm font-medium text-gray-700">State</label>
               <input
                 id="state"
                 name="state"
                 value={profile.state || ''}
                 onChange={handleChange}
-                className="w-full mt-1 p-2 border border-gray-600 bg-gray-700 text-gray-100 placeholder-gray-400 rounded" // Dark mode styles
+                className="w-full mt-1 p-2 border border-gray-300 bg-white text-gray-900 placeholder-gray-500 rounded"
               />
             </div>
             <div>
-              <label htmlFor="zip_code" className="block text-sm font-medium text-gray-300">ZIP Code</label> {/* Changed text color */}
+              <label htmlFor="zip_code" className="block text-sm font-medium text-gray-700">ZIP Code</label>
               <input
                 id="zip_code"
                 name="zip_code"
                 value={profile.zip_code || ''}
                 onChange={handleChange}
-                className="w-full mt-1 p-2 border border-gray-600 bg-gray-700 text-gray-100 placeholder-gray-400 rounded" // Dark mode styles
+                className="w-full mt-1 p-2 border border-gray-300 bg-white text-gray-900 placeholder-gray-500 rounded"
               />
             </div>
           </div>
 
-          <div className="pt-2"> {/* Added padding top for button spacing */}
+          <div className="pt-4">
             <button
               onClick={handleSave}
-              className="w-full bg-indigo-600 text-white px-4 py-2.5 rounded hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-opacity-50 transition ease-in-out duration-150" // Changed button colors, added focus states
+              className="w-full bg-indigo-600 text-white px-4 py-2.5 rounded hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-opacity-50 transition ease-in-out duration-150"
             >
               Save Changes
             </button>
