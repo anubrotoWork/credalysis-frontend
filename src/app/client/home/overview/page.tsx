@@ -13,6 +13,7 @@ export default function OverviewPage() {
   const [data, setData] = useState<OverviewData | null>(null);
   const [activeTab, setActiveTab] = useState<"counts" | "summary">("counts");
   const router = useRouter();
+  const backendApiUrl = process.env.NEXT_PUBLIC_BACKEND_API_URL;
   useEffect(() => {
     const isLoggedIn = localStorage.getItem("auth") === "true";
     const isClient = localStorage.getItem("access") == "client";
@@ -29,11 +30,11 @@ export default function OverviewPage() {
   }, [router]);
 
   useEffect(() => {
-    fetch("http://34.9.145.33:8000/api/client/overview/")
+    fetch(`${backendApiUrl}/api/client/overview/`)
       .then((res) => res.json())
       .then(setData)
       .catch((err) => console.error("Failed to load overview data:", err));
-  }, []);
+  }, [backendApiUrl]);
 
   return (
     <div className="p-6 max-w-7xl mx-auto">

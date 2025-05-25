@@ -1,6 +1,6 @@
 {
   "openapi": "3.1.0",
-  "info": { "title": "FastAPI", "version": "0.1.0" },
+  "info": { "title": "Credalysis", "version": "0.1.0" },
   "paths": {
     "/users/": {
       "get": {
@@ -380,6 +380,110 @@
         }
       }
     },
+    "/model/risk_level/update": {
+      "post": {
+        "summary": "Retrain And Save Model",
+        "operationId": "retrain_and_save_model_model_risk_level_update_post",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": { "application/json": { "schema": {} } }
+          }
+        }
+      }
+    },
+    "/model/risk_level/performance": {
+      "post": {
+        "summary": "Model Performance From Db",
+        "operationId": "model_performance_from_db_model_risk_level_performance_post",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": { "application/json": { "schema": {} } }
+          }
+        }
+      }
+    },
+    "/model/risk_level/output": {
+      "post": {
+        "summary": "Predict Risk Level",
+        "operationId": "predict_risk_level_model_risk_level_output_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/RiskLevelInput" }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": { "application/json": { "schema": {} } }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/model/credit_report/update": {
+      "post": {
+        "summary": "Retrain Credit Report Model",
+        "operationId": "retrain_credit_report_model_model_credit_report_update_post",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": { "application/json": { "schema": {} } }
+          }
+        }
+      }
+    },
+    "/model/credit_report/performance": {
+      "post": {
+        "summary": "Credit Report Model Performance",
+        "operationId": "credit_report_model_performance_model_credit_report_performance_post",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": { "application/json": { "schema": {} } }
+          }
+        }
+      }
+    },
+    "/model/credit_report/predict": {
+      "post": {
+        "summary": "Predict Credit Rating",
+        "operationId": "predict_credit_rating_model_credit_report_predict_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/CreditReportInput" }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": { "application/json": { "schema": {} } }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+              }
+            }
+          }
+        }
+      }
+    },
     "/risk_assessments": {
       "get": {
         "summary": "Get Risk Assessments",
@@ -677,6 +781,523 @@
         }
       }
     },
+    "/users/recommendations/agent/explainer/{email}": {
+      "get": {
+        "summary": "Agent Recommendation Explainer",
+        "description": "Agent 1: Personalized Recommendation Explainer\nExplains the top 'limit' active product recommendations to a customer.",
+        "operationId": "agent_recommendation_explainer_users_recommendations_agent_explainer__email__get",
+        "parameters": [
+          {
+            "name": "email",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string", "title": "Email" }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": { "type": "integer", "default": 2, "title": "Limit" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": { "application/json": { "schema": {} } }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/client/recommendations/agent/performance-summary": {
+      "get": {
+        "summary": "Agent Recommendation Performance Summary",
+        "description": "Agent 3 (Simplified): Recommendation Effectiveness Analysis Agent\nProvides an LLM-generated analysis of overall recommendation performance.",
+        "operationId": "agent_recommendation_performance_summary_client_recommendations_agent_performance_summary_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": { "application/json": { "schema": {} } }
+          }
+        }
+      }
+    },
+    "/client/recommendations/performance-data": {
+      "get": {
+        "summary": "Get Performance Data",
+        "description": "Endpoint to retrieve aggregated performance data from product recommendations.\nReturns data grouped by product_id and status with count, average match score,\nand total accepted benefit.",
+        "operationId": "get_performance_data_client_recommendations_performance_data_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": { "application/json": { "schema": {} } }
+          }
+        }
+      }
+    },
+    "/client/recommendations/agent/reason-effectiveness": {
+      "get": {
+        "summary": "Agent Reason Effectiveness Analyzer",
+        "description": "Agent: Recommendation Reason Effectiveness Analyzer\nAnalyzes how different recommendation reasons perform in terms of acceptance.\nOptionally filters by a specific product_id.",
+        "operationId": "agent_reason_effectiveness_analyzer_client_recommendations_agent_reason_effectiveness_get",
+        "parameters": [
+          {
+            "name": "product_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [{ "type": "string" }, { "type": "null" }],
+              "title": "Product Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": { "application/json": { "schema": {} } }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/user/credit-reports/customer/{email}": {
+      "get": {
+        "summary": "Get Reports By Email",
+        "operationId": "get_reports_by_email_user_credit_reports_customer__email__get",
+        "parameters": [
+          {
+            "name": "email",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string", "title": "Email" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/CreditReport" },
+                  "title": "Response Get Reports By Email User Credit Reports Customer  Email  Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/user/credit-reports/analyze/": {
+      "post": {
+        "summary": "Analyze Credit Health",
+        "operationId": "analyze_credit_health_user_credit_reports_analyze__post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/AnalyzeRequest" }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": { "application/json": { "schema": {} } }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/user/overview/": {
+      "get": {
+        "summary": "Overview",
+        "operationId": "overview_api_user_overview__get",
+        "parameters": [
+          {
+            "name": "email",
+            "in": "query",
+            "required": true,
+            "schema": { "type": "string", "title": "Email" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": { "application/json": { "schema": {} } }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/user/risk_and_lending/": {
+      "get": {
+        "summary": "Risk And Lending",
+        "operationId": "risk_and_lending_api_user_risk_and_lending__get",
+        "parameters": [
+          {
+            "name": "email",
+            "in": "query",
+            "required": true,
+            "schema": { "type": "string", "title": "Email" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": { "application/json": { "schema": {} } }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/user/trends/": {
+      "get": {
+        "summary": "Trends",
+        "operationId": "trends_api_user_trends__get",
+        "parameters": [
+          {
+            "name": "email",
+            "in": "query",
+            "required": true,
+            "schema": { "type": "string", "title": "Email" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": { "application/json": { "schema": {} } }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/user/increase_product_usage/": {
+      "get": {
+        "summary": "Increase Product Usage",
+        "operationId": "increase_product_usage_api_user_increase_product_usage__get",
+        "parameters": [
+          {
+            "name": "email",
+            "in": "query",
+            "required": true,
+            "schema": { "type": "string", "title": "Email" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": { "application/json": { "schema": {} } }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/user/grow_merchant_rewards/": {
+      "get": {
+        "summary": "Grow Merchant Rewards",
+        "operationId": "grow_merchant_rewards_api_user_grow_merchant_rewards__get",
+        "parameters": [
+          {
+            "name": "email",
+            "in": "query",
+            "required": true,
+            "schema": { "type": "string", "title": "Email" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": { "application/json": { "schema": {} } }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/user/save_customer_money/": {
+      "get": {
+        "summary": "Save Customer Money",
+        "operationId": "save_customer_money_api_user_save_customer_money__get",
+        "parameters": [
+          {
+            "name": "email",
+            "in": "query",
+            "required": true,
+            "schema": { "type": "string", "title": "Email" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": { "application/json": { "schema": {} } }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/user/wallet_share/": {
+      "get": {
+        "summary": "Wallet Share",
+        "operationId": "wallet_share_api_user_wallet_share__get",
+        "parameters": [
+          {
+            "name": "email",
+            "in": "query",
+            "required": true,
+            "schema": { "type": "string", "title": "Email" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": { "application/json": { "schema": {} } }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/user/benchmarking/": {
+      "get": {
+        "summary": "Benchmarking",
+        "operationId": "benchmarking_api_user_benchmarking__get",
+        "parameters": [
+          {
+            "name": "email",
+            "in": "query",
+            "required": true,
+            "schema": { "type": "string", "title": "Email" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": { "application/json": { "schema": {} } }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/user/lifecycle/": {
+      "get": {
+        "summary": "Lifecycle",
+        "operationId": "lifecycle_api_user_lifecycle__get",
+        "parameters": [
+          {
+            "name": "email",
+            "in": "query",
+            "required": true,
+            "schema": { "type": "string", "title": "Email" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": { "application/json": { "schema": {} } }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/client/overview/": {
+      "get": {
+        "summary": "Client Overview",
+        "operationId": "client_overview_api_client_overview__get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": { "application/json": { "schema": {} } }
+          }
+        }
+      }
+    },
+    "/api/client/risk_and_lending/": {
+      "get": {
+        "summary": "Client Risk And Lending",
+        "operationId": "client_risk_and_lending_api_client_risk_and_lending__get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": { "application/json": { "schema": {} } }
+          }
+        }
+      }
+    },
+    "/api/client/trends/": {
+      "get": {
+        "summary": "Client Trends",
+        "operationId": "client_trends_api_client_trends__get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": { "application/json": { "schema": {} } }
+          }
+        }
+      }
+    },
+    "/api/client/increase_product_usage/": {
+      "get": {
+        "summary": "Client Increase Product Usage",
+        "operationId": "client_increase_product_usage_api_client_increase_product_usage__get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": { "application/json": { "schema": {} } }
+          }
+        }
+      }
+    },
+    "/api/client/grow_merchant_rewards/": {
+      "get": {
+        "summary": "Client Grow Merchant Rewards",
+        "operationId": "client_grow_merchant_rewards_api_client_grow_merchant_rewards__get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": { "application/json": { "schema": {} } }
+          }
+        }
+      }
+    },
+    "/api/client/save_customer_money/": {
+      "get": {
+        "summary": "Client Save Customer Money",
+        "operationId": "client_save_customer_money_api_client_save_customer_money__get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": { "application/json": { "schema": {} } }
+          }
+        }
+      }
+    },
+    "/api/client/wallet_share/": {
+      "get": {
+        "summary": "Client Wallet Share",
+        "operationId": "client_wallet_share_api_client_wallet_share__get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": { "application/json": { "schema": {} } }
+          }
+        }
+      }
+    },
+    "/api/client/benchmarking/": {
+      "get": {
+        "summary": "Client Benchmarking",
+        "operationId": "client_benchmarking_api_client_benchmarking__get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": { "application/json": { "schema": {} } }
+          }
+        }
+      }
+    },
+    "/api/client/lifecycle/": {
+      "get": {
+        "summary": "Client Lifecycle",
+        "operationId": "client_lifecycle_api_client_lifecycle__get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": { "application/json": { "schema": {} } }
+          }
+        }
+      }
+    },
     "/login": {
       "post": {
         "summary": "Login",
@@ -692,6 +1313,110 @@
   },
   "components": {
     "schemas": {
+      "AnalyzeRequest": {
+        "properties": { "email": { "type": "string", "title": "Email" } },
+        "type": "object",
+        "required": ["email"],
+        "title": "AnalyzeRequest"
+      },
+      "CreditReport": {
+        "properties": {
+          "report_id": { "type": "string", "title": "Report Id" },
+          "report_date": { "type": "string", "title": "Report Date" },
+          "credit_bureau": { "type": "string", "title": "Credit Bureau" },
+          "credit_score": { "type": "integer", "title": "Credit Score" },
+          "credit_rating": { "type": "string", "title": "Credit Rating" },
+          "payment_history_percent": {
+            "type": "number",
+            "title": "Payment History Percent"
+          },
+          "credit_utilization_percent": {
+            "type": "number",
+            "title": "Credit Utilization Percent"
+          },
+          "total_accounts": { "type": "integer", "title": "Total Accounts" },
+          "open_accounts": { "type": "integer", "title": "Open Accounts" },
+          "credit_age_months": {
+            "type": "integer",
+            "title": "Credit Age Months"
+          },
+          "hard_inquiries": { "type": "integer", "title": "Hard Inquiries" },
+          "public_records": { "type": "integer", "title": "Public Records" },
+          "collections": { "type": "integer", "title": "Collections" },
+          "total_debt": { "type": "number", "title": "Total Debt" },
+          "revolving_debt": { "type": "number", "title": "Revolving Debt" },
+          "installment_debt": { "type": "number", "title": "Installment Debt" },
+          "mortgage_debt": { "type": "number", "title": "Mortgage Debt" },
+          "available_credit": { "type": "number", "title": "Available Credit" }
+        },
+        "type": "object",
+        "required": [
+          "report_id",
+          "report_date",
+          "credit_bureau",
+          "credit_score",
+          "credit_rating",
+          "payment_history_percent",
+          "credit_utilization_percent",
+          "total_accounts",
+          "open_accounts",
+          "credit_age_months",
+          "hard_inquiries",
+          "public_records",
+          "collections",
+          "total_debt",
+          "revolving_debt",
+          "installment_debt",
+          "mortgage_debt",
+          "available_credit"
+        ],
+        "title": "CreditReport"
+      },
+      "CreditReportInput": {
+        "properties": {
+          "credit_score": { "type": "integer", "title": "Credit Score" },
+          "payment_history_percent": {
+            "type": "number",
+            "title": "Payment History Percent"
+          },
+          "credit_utilization_percent": {
+            "type": "number",
+            "title": "Credit Utilization Percent"
+          },
+          "total_accounts": { "type": "integer", "title": "Total Accounts" },
+          "open_accounts": { "type": "integer", "title": "Open Accounts" },
+          "credit_age_months": {
+            "type": "integer",
+            "title": "Credit Age Months"
+          },
+          "hard_inquiries": { "type": "integer", "title": "Hard Inquiries" },
+          "public_records": { "type": "integer", "title": "Public Records" },
+          "collections": { "type": "integer", "title": "Collections" },
+          "total_debt": { "type": "number", "title": "Total Debt" },
+          "revolving_debt": { "type": "number", "title": "Revolving Debt" },
+          "installment_debt": { "type": "number", "title": "Installment Debt" },
+          "mortgage_debt": { "type": "number", "title": "Mortgage Debt" },
+          "available_credit": { "type": "number", "title": "Available Credit" }
+        },
+        "type": "object",
+        "required": [
+          "credit_score",
+          "payment_history_percent",
+          "credit_utilization_percent",
+          "total_accounts",
+          "open_accounts",
+          "credit_age_months",
+          "hard_inquiries",
+          "public_records",
+          "collections",
+          "total_debt",
+          "revolving_debt",
+          "installment_debt",
+          "mortgage_debt",
+          "available_credit"
+        ],
+        "title": "CreditReportInput"
+      },
       "Goal": {
         "properties": {
           "customer_email": { "type": "string", "title": "Customer Email" },
@@ -770,6 +1495,55 @@
           "financial_health_score"
         ],
         "title": "InsightIn"
+      },
+      "RiskLevelInput": {
+        "properties": {
+          "credit_risk_score": {
+            "type": "number",
+            "title": "Credit Risk Score"
+          },
+          "fraud_risk_score": { "type": "number", "title": "Fraud Risk Score" },
+          "default_risk_score": {
+            "type": "number",
+            "title": "Default Risk Score"
+          },
+          "overall_risk_score": {
+            "type": "number",
+            "title": "Overall Risk Score"
+          },
+          "credit_score": { "type": "integer", "title": "Credit Score" },
+          "credit_utilization_percent": {
+            "type": "number",
+            "title": "Credit Utilization Percent"
+          },
+          "debt_to_income_ratio": {
+            "type": "number",
+            "title": "Debt To Income Ratio"
+          },
+          "products_count": { "type": "integer", "title": "Products Count" },
+          "transaction_frequency": {
+            "type": "number",
+            "title": "Transaction Frequency"
+          },
+          "average_transaction_amount": {
+            "type": "number",
+            "title": "Average Transaction Amount"
+          }
+        },
+        "type": "object",
+        "required": [
+          "credit_risk_score",
+          "fraud_risk_score",
+          "default_risk_score",
+          "overall_risk_score",
+          "credit_score",
+          "credit_utilization_percent",
+          "debt_to_income_ratio",
+          "products_count",
+          "transaction_frequency",
+          "average_transaction_amount"
+        ],
+        "title": "RiskLevelInput"
       },
       "TextAnalysisRequest": {
         "properties": { "prompt": { "type": "string", "title": "Prompt" } },

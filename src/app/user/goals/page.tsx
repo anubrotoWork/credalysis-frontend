@@ -115,7 +115,7 @@ export default function GoalsPage() {
   const [email, setEmailState] = useState('');
   const [editOriginalGoalName, setEditOriginalGoalName] = useState<string | null>(null);
 
-  const backendApiUrl = "http://34.9.145.33:8000";
+  const backendApiUrl = process.env.NEXT_PUBLIC_BACKEND_API_URL;;
 
 
   useEffect(() => {
@@ -144,7 +144,7 @@ export default function GoalsPage() {
     } finally {
       setLoading(false);
     }
-  }, [email]);
+  }, [email, backendApiUrl]);
 
   useEffect(() => {
     if(email) {

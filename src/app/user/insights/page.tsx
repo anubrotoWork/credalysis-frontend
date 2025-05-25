@@ -1,38 +1,44 @@
 "use client";
 
 import { useEffect, useState } from "react";
-
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 type InsightResponse = {
   email: string;
   analysis: string;
 };
 
-const formatTextToHTML = (text: string) => {
-  if (!text) return '';
-  
-  let formattedText = text;
+// const formatTextToHTML = (text: string) => {
+//   if (!text) return "";
 
-  // Handle bold text (i.e., text wrapped in `**`)
-  formattedText = formattedText.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+//   let formattedText = text;
 
-  // Handle unordered lists (i.e., lines that start with "*")
-  formattedText = formattedText.replace(/^\* (.*?)$/gm, '<li>$1</li>');
+//   // Handle bold text (i.e., text wrapped in `**`)
+//   formattedText = formattedText.replace(
+//     /\*\*(.*?)\*\*/g,
+//     "<strong>$1</strong>"
+//   );
 
-  // Wrap list items in <ul> (only if there are list items)
-  formattedText = formattedText.replace(/(<li>.*?<\/li>)/g, '<ul class="list-nested-1">$1</ul>');
+//   // Handle unordered lists (i.e., lines that start with "*")
+//   formattedText = formattedText.replace(/^\* (.*?)$/gm, "<li>$1</li>");
 
-  // Handle headers (e.g., text that starts with numbers followed by a dot)
-  formattedText = formattedText.replace(/^(\d+\.)(.*?)$/gm, (match, p1, p2) => {
-    return `<h3 class="text-lg font-semibold">${p2.trim()}</h3>`;
-  });
+//   // Wrap list items in <ul> (only if there are list items)
+//   formattedText = formattedText.replace(
+//     /(<li>.*?<\/li>)/g,
+//     '<ul class="list-nested-1">$1</ul>'
+//   );
 
-  // Wrap paragraphs
-  formattedText = formattedText.replace(/\n\n/g, '</p><p class="mb-4">');
-  formattedText = `<p class="mb-4">${formattedText}</p>`;
+//   // Handle headers (e.g., text that starts with numbers followed by a dot)
+//   formattedText = formattedText.replace(/^(\d+\.)(.*?)$/gm, (match, p1, p2) => {
+//     return `<h3 class="text-lg font-semibold">${p2.trim()}</h3>`;
+//   });
 
-  return formattedText;
-};
+//   // Wrap paragraphs
+//   formattedText = formattedText.replace(/\n\n/g, '</p><p class="mb-4">');
+//   formattedText = `<p class="mb-4">${formattedText}</p>`;
 
+//   return formattedText;
+// };
 
 export default function InsightsPage() {
   const [email, setEmail] = useState<string | null>(null);
@@ -51,7 +57,7 @@ export default function InsightsPage() {
   });
   const [error, setError] = useState<string>("");
 
-  const backendApiUrl = "http://34.9.145.33:8000";
+  const backendApiUrl = process.env.NEXT_PUBLIC_BACKEND_API_URL;
 
   useEffect(() => {
     const storedEmail = localStorage.getItem("email");
@@ -164,12 +170,14 @@ export default function InsightsPage() {
                 {loading.spending ? "Loading..." : "Run Spending Analysis"}
               </button>
               {insights.spending && !loading.spending && (
-                <div
-                  className="mt-4 prose prose-sm max-w-none text-gray-700"
-                  dangerouslySetInnerHTML={{
-                    __html: formatTextToHTML(insights.spending),
-                  }}
-                />
+                <div className="prose max-w-none">
+                  <ReactMarkdown
+                    remarkPlugins={[remarkGfm]}
+                    // components={markdownComponents}
+                  >
+                    {insights.spending}
+                  </ReactMarkdown>
+                </div>
               )}
             </div>
           )}
@@ -184,12 +192,14 @@ export default function InsightsPage() {
                 {loading.savings ? "Loading..." : "Run Savings Strategy"}
               </button>
               {insights.savings && !loading.savings && (
-                <div
-                  className="mt-4 prose prose-sm max-w-none text-gray-700"
-                  dangerouslySetInnerHTML={{
-                    __html: formatTextToHTML(insights.savings),
-                  }}
-                />
+                <div className="prose max-w-none">
+                  <ReactMarkdown
+                    remarkPlugins={[remarkGfm]}
+                    // components={markdownComponents}
+                  >
+                    {insights.savings}
+                  </ReactMarkdown>
+                </div>
               )}
             </div>
           )}
@@ -204,12 +214,14 @@ export default function InsightsPage() {
                 {loading.budget ? "Loading..." : "Run Budget Health Review"}
               </button>
               {insights.budget && !loading.budget && (
-                <div
-                  className="mt-4 prose prose-sm max-w-none text-gray-700"
-                  dangerouslySetInnerHTML={{
-                    __html: formatTextToHTML(insights.budget),
-                  }}
-                />
+                <div className="prose max-w-none">
+                  <ReactMarkdown
+                    remarkPlugins={[remarkGfm]}
+                    // components={markdownComponents}
+                  >
+                    {insights.budget}
+                  </ReactMarkdown>
+                </div>
               )}
             </div>
           )}

@@ -21,7 +21,7 @@ export default function WalletSharePage() {
   const [activeTab, setActiveTab] = useState<"sample" | "total" | "analysis">(
     "sample"
   );
-
+  const backendApiUrl = process.env.NEXT_PUBLIC_BACKEND_API_URL;
   const router = useRouter();
   useEffect(() => {
     const isLoggedIn = localStorage.getItem("auth") === "true";
@@ -39,11 +39,11 @@ export default function WalletSharePage() {
   }, [router]);
 
   useEffect(() => {
-    fetch("http://34.9.145.33:8000/api/client/wallet_share/")
+    fetch(`${backendApiUrl}/api/client/wallet_share/`)
       .then((res) => res.json())
       .then(setData)
       .catch((err) => console.error("Failed to load wallet share data:", err));
-  }, []);
+  }, [backendApiUrl]);
 
   return (
     <div className="p-6 max-w-7xl mx-auto">

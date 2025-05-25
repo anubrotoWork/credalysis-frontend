@@ -55,7 +55,7 @@ export default function RecommendationsPage() {
   const [expandedCard, setExpandedCard] = useState<string | null>(null);
   
   const router = useRouter();
-  const backendApiUrl = "http://34.9.145.33:8000";
+  const backendApiUrl = process.env.NEXT_PUBLIC_BACKEND_API_URL;
 
   // Authentication check
   useEffect(() => {

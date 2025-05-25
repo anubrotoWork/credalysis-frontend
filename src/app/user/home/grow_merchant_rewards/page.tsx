@@ -1,9 +1,10 @@
-'use client';
+"use client";
 
-import React, { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
-import ReactMarkdown from 'react-markdown';
-import remarkGfm from 'remark-gfm';
+import React, { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
+import type { Components } from "react-markdown";
 
 type RewardTransaction = {
   transaction_id: string;
@@ -21,25 +22,52 @@ type GrowMerchantRewardsResponse = {
   analysis: string;
 };
 
+// Custom components for ReactMarkdown to enhance table styling
+const markdownComponents: Components = {
+  // Fixed: Properly handle parameters without using _node
+  table: (props) => (
+    <div className="overflow-x-auto my-4">
+      <table
+        className="min-w-full border-collapse border border-gray-300 text-sm"
+        {...props}
+      />
+    </div>
+  ),
+  thead: (props) => <thead className="bg-gray-100" {...props} />,
+  tbody: (props) => <tbody className="divide-y divide-gray-200" {...props} />,
+  tr: (props) => <tr className="hover:bg-gray-50" {...props} />,
+  th: (props) => (
+    <th
+      className="border border-gray-300 px-4 py-2 text-left font-medium text-gray-700"
+      {...props}
+    />
+  ),
+  td: (props) => <td className="border border-gray-300 px-4 py-2" {...props} />,
+};
+
 export default function GrowMerchantRewardsPage() {
   const [data, setData] = useState<GrowMerchantRewardsResponse | null>(null);
-  const [activeTab, setActiveTab] = useState<'transactions' | 'analysis'>('transactions');
+  const [activeTab, setActiveTab] = useState<"transactions" | "analysis">(
+    "transactions"
+  );
   const router = useRouter();
 
   useEffect(() => {
-    const isLoggedIn = localStorage.getItem('auth') === 'true';
-    const isUser = localStorage.getItem('access') === 'user';
-    const email = localStorage.getItem('email');
+    const isLoggedIn = localStorage.getItem("auth") === "true";
+    const isUser = localStorage.getItem("access") === "user";
+    const email = localStorage.getItem("email");
 
     if (!isLoggedIn || !isUser || !email) {
-      router.push('/login');
+      router.push("/login");
       return;
     }
 
-    fetch(`http://34.9.145.33:8000/api/user/grow_merchant_rewards/?email=${email}`)
+    fetch(
+      `${process.env.NEXT_PUBLIC_BACKEND_API_URL}/api/user/grow_merchant_rewards/?email=${email}`
+    )
       .then((res) => res.json())
       .then(setData)
-      .catch((err) => console.error('Failed to fetch merchant rewards:', err));
+      .catch((err) => console.error("Failed to fetch merchant rewards:", err));
   }, [router]);
 
   if (!data) return <p className="p-6">Loading merchant rewards...</p>;
@@ -51,21 +79,21 @@ export default function GrowMerchantRewardsPage() {
       {/* Tab Navigation */}
       <div className="flex space-x-4 mb-6 border-b">
         <button
-          onClick={() => setActiveTab('transactions')}
+          onClick={() => setActiveTab("transactions")}
           className={`px-4 py-2 font-medium ${
-            activeTab === 'transactions'
-              ? 'border-b-2 border-blue-600 text-blue-600'
-              : 'text-gray-500 hover:text-gray-700'
+            activeTab === "transactions"
+              ? "border-b-2 border-blue-600 text-blue-600"
+              : "text-gray-500 hover:text-gray-700"
           }`}
         >
           Transactions
         </button>
         <button
-          onClick={() => setActiveTab('analysis')}
+          onClick={() => setActiveTab("analysis")}
           className={`px-4 py-2 font-medium ${
-            activeTab === 'analysis'
-              ? 'border-b-2 border-blue-600 text-blue-600'
-              : 'text-gray-500 hover:text-gray-700'
+            activeTab === "analysis"
+              ? "border-b-2 border-blue-600 text-blue-600"
+              : "text-gray-500 hover:text-gray-700"
           }`}
         >
           AI Analysis
@@ -73,7 +101,7 @@ export default function GrowMerchantRewardsPage() {
       </div>
 
       {/* Tab Content */}
-      {activeTab === 'transactions' && (
+      {activeTab === "transactions" && (
         <section>
           <div className="overflow-x-auto">
             <table className="min-w-full border border-gray-200">
@@ -89,9 +117,13 @@ export default function GrowMerchantRewardsPage() {
               <tbody>
                 {data.rewards.map((txn) => (
                   <tr key={txn.transaction_id} className="hover:bg-gray-50">
-                    <td className="border px-4 py-2">{new Date(txn.date).toLocaleDateString()}</td>
+                    <td className="border px-4 py-2">
+                      {new Date(txn.date).toLocaleDateString()}
+                    </td>
                     <td className="border px-4 py-2">{txn.merchant_name}</td>
-                    <td className="border px-4 py-2">${txn.amount.toFixed(2)}</td>
+                    <td className="border px-4 py-2">
+                      ${txn.amount.toFixed(2)}
+                    </td>
                     <td className="border px-4 py-2">{txn.category}</td>
                     <td className="border px-4 py-2">{txn.primary_category}</td>
                   </tr>
@@ -102,9 +134,12 @@ export default function GrowMerchantRewardsPage() {
         </section>
       )}
 
-      {activeTab === 'analysis' && (
+      {activeTab === "analysis" && (
         <section className="prose max-w-none">
-          <ReactMarkdown remarkPlugins={[remarkGfm]}>
+          <ReactMarkdown
+            remarkPlugins={[remarkGfm]}
+            components={markdownComponents}
+          >
             {data.analysis}
           </ReactMarkdown>
         </section>

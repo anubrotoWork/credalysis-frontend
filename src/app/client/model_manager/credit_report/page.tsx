@@ -32,7 +32,7 @@ const toTitleCase = (str: string) =>
 
 export default function CreditReportModelPage() {
   const router = useRouter();
-  const backendApiUrl = "http://34.9.145.33:8000";
+  const backendApiUrl = process.env.NEXT_PUBLIC_BACKEND_API_URL;
 
   // Tab state
   const [tab, setTab] = useState<"predict" | "performance" | "update">(

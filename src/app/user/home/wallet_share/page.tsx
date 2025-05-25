@@ -1,9 +1,10 @@
-'use client';
+"use client";
 
-import React, { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
-import ReactMarkdown from 'react-markdown';
-import remarkGfm from 'remark-gfm';
+import React, { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
+import type { Components } from "react-markdown";
 
 type CustomerProduct = {
   customer_product_id: string;
@@ -25,26 +26,50 @@ type WalletShareResponse = {
   wallet_share: number;
   analysis: string;
 };
+// Custom components for ReactMarkdown to enhance table styling
+const markdownComponents: Components = {
+  // Fixed: Properly handle parameters without using _node
+  table: (props) => (
+    <div className="overflow-x-auto my-4">
+      <table
+        className="min-w-full border-collapse border border-gray-300 text-sm"
+        {...props}
+      />
+    </div>
+  ),
+  thead: (props) => <thead className="bg-gray-100" {...props} />,
+  tbody: (props) => <tbody className="divide-y divide-gray-200" {...props} />,
+  tr: (props) => <tr className="hover:bg-gray-50" {...props} />,
+  th: (props) => (
+    <th
+      className="border border-gray-300 px-4 py-2 text-left font-medium text-gray-700"
+      {...props}
+    />
+  ),
+  td: (props) => <td className="border border-gray-300 px-4 py-2" {...props} />,
+};
 
 export default function WalletSharePage() {
   const [data, setData] = useState<WalletShareResponse | null>(null);
-  const [activeTab, setActiveTab] = useState<'products' | 'analysis'>('products');
+  const [activeTab, setActiveTab] = useState<"products" | "analysis">(
+    "products"
+  );
   const router = useRouter();
 
   useEffect(() => {
-    const isLoggedIn = localStorage.getItem('auth') === 'true';
-    const isUser = localStorage.getItem('access') === 'user';
-    const email = localStorage.getItem('email');
+    const isLoggedIn = localStorage.getItem("auth") === "true";
+    const isUser = localStorage.getItem("access") === "user";
+    const email = localStorage.getItem("email");
 
     if (!isLoggedIn || !isUser || !email) {
-      router.push('/login');
+      router.push("/login");
       return;
     }
 
-    fetch(`http://34.9.145.33:8000/api/user/wallet_share/?email=${email}`)
+    fetch(`${process.env.NEXT_PUBLIC_BACKEND_API_URL}/api/user/wallet_share/?email=${email}`)
       .then((res) => res.json())
       .then((json) => setData(json))
-      .catch((err) => console.error('Error fetching wallet share data:', err));
+      .catch((err) => console.error("Error fetching wallet share data:", err));
   }, [router]);
 
   if (!data) return <div className="p-4">Loading wallet share data...</div>;
@@ -54,22 +79,28 @@ export default function WalletSharePage() {
       <h1 className="text-2xl font-bold mb-4">Wallet Share Insights</h1>
       <div className="flex space-x-4 mb-4">
         <button
-          className={`px-4 py-2 rounded ${activeTab === 'products' ? 'bg-blue-600 text-white' : 'bg-gray-200'}`}
-          onClick={() => setActiveTab('products')}
+          className={`px-4 py-2 rounded ${
+            activeTab === "products" ? "bg-blue-600 text-white" : "bg-gray-200"
+          }`}
+          onClick={() => setActiveTab("products")}
         >
           Product Breakdown
         </button>
         <button
-          className={`px-4 py-2 rounded ${activeTab === 'analysis' ? 'bg-blue-600 text-white' : 'bg-gray-200'}`}
-          onClick={() => setActiveTab('analysis')}
+          className={`px-4 py-2 rounded ${
+            activeTab === "analysis" ? "bg-blue-600 text-white" : "bg-gray-200"
+          }`}
+          onClick={() => setActiveTab("analysis")}
         >
           Cross-sell Analysis
         </button>
       </div>
 
-      {activeTab === 'products' && (
+      {activeTab === "products" && (
         <div>
-          <p className="mb-2 font-semibold">Total Wallet Share: ${data.wallet_share.toLocaleString()}</p>
+          <p className="mb-2 font-semibold">
+            Total Wallet Share: ${data.wallet_share.toLocaleString()}
+          </p>
           <table className="min-w-full text-sm border border-gray-300">
             <thead>
               <tr className="bg-gray-100">
@@ -85,8 +116,12 @@ export default function WalletSharePage() {
               {data.products.map((product) => (
                 <tr key={product.customer_product_id} className="border-t">
                   <td className="p-2 border">{product.product_id}</td>
-                  <td className="p-2 border">${product.balance.toLocaleString()}</td>
-                  <td className="p-2 border">${product.credit_limit.toLocaleString()}</td>
+                  <td className="p-2 border">
+                    ${product.balance.toLocaleString()}
+                  </td>
+                  <td className="p-2 border">
+                    ${product.credit_limit.toLocaleString()}
+                  </td>
                   <td className="p-2 border">{product.interest_rate}%</td>
                   <td className="p-2 border">{product.status}</td>
                   <td className="p-2 border">{product.start_date}</td>
@@ -97,9 +132,14 @@ export default function WalletSharePage() {
         </div>
       )}
 
-      {activeTab === 'analysis' && (
+      {activeTab === "analysis" && (
         <div className="prose max-w-none">
-          <ReactMarkdown remarkPlugins={[remarkGfm]}>{data.analysis}</ReactMarkdown>
+          <ReactMarkdown
+            remarkPlugins={[remarkGfm]}
+            components={markdownComponents}
+          >
+            {data.analysis}
+          </ReactMarkdown>
         </div>
       )}
     </div>

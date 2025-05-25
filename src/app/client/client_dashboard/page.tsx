@@ -9,7 +9,7 @@ export default function DashboardPage() {
   const [riskData, setRiskData] = useState<RiskAssessment[]>([]);
   const [goals, setGoals] = useState<FinancialGoal[]>([]);
   const router = useRouter();
-  const backendApiUrl = "http://34.9.145.33:8000";
+  const backendApiUrl = process.env.NEXT_PUBLIC_BACKEND_API_URL;
   useEffect(() => {
     const isLoggedIn = localStorage.getItem("auth") === "true";
     const isClient = localStorage.getItem("access") == "client";
@@ -33,7 +33,7 @@ export default function DashboardPage() {
       setGoals(await resGoals.json());
     };
     fetchData();
-  }, []);
+  }, [backendApiUrl]);
 
   return (
     <div className="p-6">

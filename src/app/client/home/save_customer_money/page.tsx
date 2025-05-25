@@ -23,6 +23,8 @@ export default function SaveCustomerMoneyPage() {
   const [activeTab, setActiveTab] = useState<"insights" | "suggestions">(
     "insights"
   );
+
+  const backendApiUrl = process.env.NEXT_PUBLIC_BACKEND_API_URL;
   
   const router = useRouter();
   useEffect(() => {
@@ -41,13 +43,13 @@ export default function SaveCustomerMoneyPage() {
   }, [router]);
 
   useEffect(() => {
-    fetch("http://34.9.145.33:8000/api/client/save_customer_money/")
+    fetch(`${backendApiUrl}/api/client/save_customer_money/`)
       .then((res) => res.json())
       .then(setData)
       .catch((err) =>
         console.error("Failed to load save customer money data:", err)
       );
-  }, []);
+  }, [backendApiUrl]);
 
   return (
     <div className="p-6 max-w-7xl mx-auto">

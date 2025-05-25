@@ -14,6 +14,7 @@ export default function RiskAndLendingPage() {
   const [data, setData] = useState<RiskAndLendingData | null>(null);
   const [activeTab, setActiveTab] = useState<"counts" | "analysis">("counts");
   const router = useRouter();
+  const backendApiUrl = process.env.NEXT_PUBLIC_BACKEND_API_URL;
   useEffect(() => {
     const isLoggedIn = localStorage.getItem("auth") === "true";
     const isClient = localStorage.getItem("access") == "client";
@@ -30,13 +31,13 @@ export default function RiskAndLendingPage() {
   }, [router]);
 
   useEffect(() => {
-    fetch("http://34.9.145.33:8000/api/client/risk_and_lending/")
+    fetch(`${backendApiUrl}/api/client/risk_and_lending/`)
       .then((res) => res.json())
       .then(setData)
       .catch((err) =>
         console.error("Failed to load risk and lending data:", err)
       );
-  }, []);
+  }, [backendApiUrl]);
 
   return (
     <div className="p-6 max-w-7xl mx-auto">

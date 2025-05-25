@@ -3,6 +3,8 @@ import React, { useEffect, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { useRouter } from "next/navigation";
+import type { Components } from "react-markdown";
+
 type Customer = {
   customer_id: string;
   age: number;
@@ -16,12 +18,35 @@ type LifecycleData = {
   lifecycle: string;
 };
 
+// Custom components for ReactMarkdown to enhance table styling
+const markdownComponents: Components = {
+  // Fixed: Properly handle parameters without using _node
+  table: (props) => (
+    <div className="overflow-x-auto my-4">
+      <table
+        className="min-w-full border-collapse border border-gray-300 text-sm"
+        {...props}
+      />
+    </div>
+  ),
+  thead: (props) => <thead className="bg-gray-100" {...props} />,
+  tbody: (props) => <tbody className="divide-y divide-gray-200" {...props} />,
+  tr: (props) => <tr className="hover:bg-gray-50" {...props} />,
+  th: (props) => (
+    <th
+      className="border border-gray-300 px-4 py-2 text-left font-medium text-gray-700"
+      {...props}
+    />
+  ),
+  td: (props) => <td className="border border-gray-300 px-4 py-2" {...props} />,
+};
+
 export default function LifecyclePage() {
   const [data, setData] = useState<LifecycleData | null>(null);
   const [activeTab, setActiveTab] = useState<"sample" | "total" | "lifecycle">(
     "sample"
   );
-
+  const backendApiUrl = process.env.NEXT_PUBLIC_BACKEND_API_URL;
   const router = useRouter();
   useEffect(() => {
     const isLoggedIn = localStorage.getItem("auth") === "true";
@@ -39,11 +64,11 @@ export default function LifecyclePage() {
   }, [router]);
 
   useEffect(() => {
-    fetch("http://34.9.145.33:8000/api/client/lifecycle/")
+    fetch(`${backendApiUrl}/api/client/lifecycle/`)
       .then((res) => res.json())
       .then(setData)
       .catch((err) => console.error("Failed to load lifecycle data:", err));
-  }, []);
+  }, [backendApiUrl]);
 
   return (
     <div className="p-6 max-w-7xl mx-auto">
@@ -113,7 +138,13 @@ export default function LifecyclePage() {
 
         {data && activeTab === "lifecycle" && (
           <div className="prose max-w-none overflow-y-auto max-h-[600px] whitespace-pre-wrap text-gray-800">
-            <ReactMarkdown remarkPlugins={[remarkGfm]}>
+            {/* <ReactMarkdown remarkPlugins={[remarkGfm]}>
+              {data.lifecycle}
+            </ReactMarkdown> */}
+            <ReactMarkdown
+              remarkPlugins={[remarkGfm]}
+              components={markdownComponents}
+            >
               {data.lifecycle}
             </ReactMarkdown>
           </div>

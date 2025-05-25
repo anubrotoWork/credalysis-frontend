@@ -32,7 +32,7 @@ export default function TransactionsPage() {
     setEmail(storedEmail);
   }, []);
 
-  const backendApiUrl = "http://34.9.145.33:8000";
+  const backendApiUrl = process.env.NEXT_PUBLIC_BACKEND_API_URL;
 
   useEffect(() => {
     if (email) {

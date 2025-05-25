@@ -7,7 +7,7 @@ import { ProductRecommendation } from '@/types';
 export default function RecommendationsPage() {
   const [recommendations, setRecommendations] = useState<ProductRecommendation[]>([]);
   const router = useRouter();
-  const backendApiUrl = "http://34.9.145.33:8000";
+  const backendApiUrl = process.env.NEXT_PUBLIC_BACKEND_API_URL;
   useEffect(() => {
     const isLoggedIn = localStorage.getItem("auth") === "true";
     const isClient = localStorage.getItem("access") == "client";
@@ -29,7 +29,7 @@ export default function RecommendationsPage() {
       setRecommendations(await res.json());
     };
     fetchData();
-  }, []);
+  }, [backendApiUrl]);
 
   return (
     <div className="p-6">

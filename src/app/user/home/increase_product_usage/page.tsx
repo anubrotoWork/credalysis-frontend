@@ -48,7 +48,7 @@ export default function IncreaseProductUsagePage() {
       return;
     }
 
-    fetch(`http://34.9.145.33:8000/api/user/increase_product_usage/?email=${email}`)
+    fetch(`${process.env.NEXT_PUBLIC_BACKEND_API_URL}/api/user/increase_product_usage/?email=${email}`)
       .then((res) => res.json())
       .then(setData)
       .catch((err) => console.error('Failed to load product usage data:', err));

@@ -1,9 +1,10 @@
-'use client';
+"use client";
 
-import React, { useEffect, useState } from 'react';
-import ReactMarkdown from 'react-markdown';
-import remarkGfm from 'remark-gfm';
-import { useRouter } from 'next/navigation';
+import React, { useEffect, useState } from "react";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
+import { useRouter } from "next/navigation";
+import type { Components } from "react-markdown";
 
 type Trend = {
   insight_date: string;
@@ -18,32 +19,55 @@ type TrendsData = {
   trend_analysis: string;
 };
 
+// Custom components for ReactMarkdown to enhance table styling
+const markdownComponents: Components = {
+  // Fixed: Properly handle parameters without using _node
+  table: (props) => (
+    <div className="overflow-x-auto my-4">
+      <table
+        className="min-w-full border-collapse border border-gray-300 text-sm"
+        {...props}
+      />
+    </div>
+  ),
+  thead: (props) => <thead className="bg-gray-100" {...props} />,
+  tbody: (props) => <tbody className="divide-y divide-gray-200" {...props} />,
+  tr: (props) => <tr className="hover:bg-gray-50" {...props} />,
+  th: (props) => (
+    <th
+      className="border border-gray-300 px-4 py-2 text-left font-medium text-gray-700"
+      {...props}
+    />
+  ),
+  td: (props) => <td className="border border-gray-300 px-4 py-2" {...props} />,
+};
+
 export default function TrendsPage() {
   const [data, setData] = useState<TrendsData | null>(null);
-  const [activeTab, setActiveTab] = useState<'trends' | 'analysis'>('trends');
+  const [activeTab, setActiveTab] = useState<"trends" | "analysis">("trends");
   const router = useRouter();
 
   useEffect(() => {
-    const isLoggedIn = localStorage.getItem('auth') === 'true';
-    const isUser = localStorage.getItem('access') === 'user';
-    const email = localStorage.getItem('email');
+    const isLoggedIn = localStorage.getItem("auth") === "true";
+    const isUser = localStorage.getItem("access") === "user";
+    const email = localStorage.getItem("email");
 
     if (!isLoggedIn || !isUser || !email) {
-      router.push('/login');
+      router.push("/login");
       return;
     }
 
-    fetch(`http://34.9.145.33:8000/api/user/trends/?email=${email}`)
+    fetch(`${process.env.NEXT_PUBLIC_BACKEND_API_URL}/api/user/trends/?email=${email}`)
       .then((res) => res.json())
       .then(setData)
-      .catch((err) => console.error('Failed to load trends data:', err));
+      .catch((err) => console.error("Failed to load trends data:", err));
   }, [router]);
 
   const renderTabContent = () => {
     if (!data) return <p>Loading...</p>;
 
     switch (activeTab) {
-      case 'trends':
+      case "trends":
         return (
           <div>
             <h2 className="text-xl font-semibold">Trends Data</h2>
@@ -62,19 +86,26 @@ export default function TrendsPage() {
                   <tr key={index}>
                     <td className="border px-4 py-2">{trend.insight_date}</td>
                     <td className="border px-4 py-2">${trend.total_income}</td>
-                    <td className="border px-4 py-2">${trend.total_expenses}</td>
+                    <td className="border px-4 py-2">
+                      ${trend.total_expenses}
+                    </td>
                     <td className="border px-4 py-2">{trend.savings_rate}%</td>
-                    <td className="border px-4 py-2">{trend.financial_health_score}</td>
+                    <td className="border px-4 py-2">
+                      {trend.financial_health_score}
+                    </td>
                   </tr>
                 ))}
               </tbody>
             </table>
           </div>
         );
-      case 'analysis':
+      case "analysis":
         return (
           <div className="prose max-w-none">
-            <ReactMarkdown remarkPlugins={[remarkGfm]}>
+            <ReactMarkdown
+              remarkPlugins={[remarkGfm]}
+              components={markdownComponents}
+            >
               {data.trend_analysis}
             </ReactMarkdown>
           </div>
@@ -90,16 +121,24 @@ export default function TrendsPage() {
 
       <div className="flex space-x-4 mb-6 border-b">
         <button
-          onClick={() => setActiveTab('trends')}
-          className={`pb-2 px-4 border-b-2 ${activeTab === 'trends' ? 'border-blue-600 text-blue-600 font-semibold' : 'border-transparent text-gray-600'}`}
+          onClick={() => setActiveTab("trends")}
+          className={`pb-2 px-4 border-b-2 ${
+            activeTab === "trends"
+              ? "border-blue-600 text-blue-600 font-semibold"
+              : "border-transparent text-gray-600"
+          }`}
         >
           Trends Data
         </button>
         <button
-          onClick={() => setActiveTab('analysis')}
-          className={`pb-2 px-4 border-b-2 ${activeTab === 'analysis' ? 'border-blue-600 text-blue-600 font-semibold' : 'border-transparent text-gray-600'}`}
+          onClick={() => setActiveTab("analysis")}
+          className={`pb-2 px-4 border-b-2 ${
+            activeTab === "analysis"
+              ? "border-blue-600 text-blue-600 font-semibold"
+              : "border-transparent text-gray-600"
+          }`}
         >
-          LLM Analysis
+          AI Analysis
         </button>
       </div>
 

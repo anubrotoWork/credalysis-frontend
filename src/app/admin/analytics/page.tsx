@@ -11,6 +11,8 @@ export default function AnalyticsPage() {
   const [filter, setFilter] = useState<'spending' | 'saving' | 'budget' | 'all'>('all');
   const router = useRouter();
 
+  const backendApiUrl = process.env.NEXT_PUBLIC_BACKEND_API_URL;
+
   useEffect(() => {
     const isLoggedIn = localStorage.getItem("auth") === "true";
     const isAdmin = localStorage.getItem("access") == "admin";
@@ -29,10 +31,10 @@ export default function AnalyticsPage() {
 
   useEffect(() => {
     const fetchData = async () => {
-      const insightsRes = await fetch('http://34.55.216.204:8000/insights/all');
+      const insightsRes = await fetch(`${backendApiUrl}/insights/all`);
       const insightsJson = await insightsRes.json();
       
-      const loansRes = await fetch('http://34.55.216.204:8000/customer_products');
+      const loansRes = await fetch(`${backendApiUrl}/customer_products`);
       
       setInsights(Array.isArray(insightsJson) ? insightsJson : []);
       setLoans(await loansRes.json());

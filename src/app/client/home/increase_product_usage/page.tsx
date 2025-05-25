@@ -23,7 +23,7 @@ type ProductUsageData = {
 export default function ClientProductUsagePage() {
   const [data, setData] = useState<ProductUsageData | null>(null);
   const [activeTab, setActiveTab] = useState<'products' | 'recommendations' | 'suggestions'>('products');
-
+  const backendApiUrl = process.env.NEXT_PUBLIC_BACKEND_API_URL;
   const router = useRouter();
       useEffect(() => {
         const isLoggedIn = localStorage.getItem("auth") === "true";
@@ -41,11 +41,11 @@ export default function ClientProductUsagePage() {
       }, [router]);
 
   useEffect(() => {
-    fetch('http://34.9.145.33:8000/api/client/increase_product_usage/')
+    fetch(`${backendApiUrl}/api/client/increase_product_usage/`)
       .then((res) => res.json())
       .then(setData)
       .catch((err) => console.error('Failed to load product usage data:', err));
-  }, []);
+  }, [backendApiUrl]);
 
   return (
     <div className="p-6 max-w-7xl mx-auto">

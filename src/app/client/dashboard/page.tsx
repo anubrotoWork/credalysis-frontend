@@ -57,7 +57,7 @@ export default function DashboardPage() {
   }>({ goals: false, risk: false });
   const router = useRouter();
 
-  const backendApiUrl = "http://34.9.145.33:8000";
+  const backendApiUrl = process.env.NEXT_PUBLIC_BACKEND_API_URL;
 
   // Check authentication
   useEffect(() => {
@@ -101,7 +101,7 @@ export default function DashboardPage() {
     };
 
     fetchData();
-  }, []);
+  }, [backendApiUrl]);
 
   // Fetch analysis data for goals
   const fetchGoalsAnalysis = async () => {

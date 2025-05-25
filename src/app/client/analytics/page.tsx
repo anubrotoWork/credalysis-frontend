@@ -10,7 +10,7 @@ export default function AnalyticsPage() {
   const [loans, setLoans] = useState<Loan[]>([]);
   const [filter, setFilter] = useState<'spending' | 'saving' | 'budget' | 'all'>('all');
   const router = useRouter();
-  const backendApiUrl = "http://34.9.145.33:8000";
+  const backendApiUrl = process.env.NEXT_PUBLIC_BACKEND_API_URL;
   useEffect(() => {
     const isLoggedIn = localStorage.getItem("auth") === "true";
     if (!isLoggedIn) router.push("/login");
@@ -27,7 +27,7 @@ export default function AnalyticsPage() {
       setLoans(await loansRes.json());
     };
     fetchData();
-  }, []);
+  }, [backendApiUrl]);
 
   return (
     <div className="p-6">

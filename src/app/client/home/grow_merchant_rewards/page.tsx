@@ -19,7 +19,7 @@ type MerchantRewardsData = {
 export default function ClientMerchantRewardsPage() {
   const [data, setData] = useState<MerchantRewardsData | null>(null);
   const [activeTab, setActiveTab] = useState<'transactions' | 'analysis'>('transactions');
-
+  const backendApiUrl = process.env.NEXT_PUBLIC_BACKEND_API_URL;
   const router = useRouter();
     useEffect(() => {
       const isLoggedIn = localStorage.getItem("auth") === "true";
@@ -37,11 +37,11 @@ export default function ClientMerchantRewardsPage() {
     }, [router]);
 
   useEffect(() => {
-    fetch('http://34.9.145.33:8000/api/client/grow_merchant_rewards/')
+    fetch(`${backendApiUrl}/api/client/grow_merchant_rewards/`)
       .then((res) => res.json())
       .then(setData)
       .catch((err) => console.error('Failed to load merchant rewards data:', err));
-  }, []);
+  }, [backendApiUrl]);
 
   return (
     <div className="p-6 max-w-7xl mx-auto">

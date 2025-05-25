@@ -12,7 +12,7 @@ export default function AskAIPage() {
   const [loading, setLoading] = useState(false);
   const [email, setEmailState] = useState<string | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
-  const backendApiUrl = "http://34.9.145.33:8000";
+  const backendApiUrl = process.env.NEXT_PUBLIC_BACKEND_API_URL;
 
   useEffect(() => {
     const storedEmail = localStorage.getItem('email');

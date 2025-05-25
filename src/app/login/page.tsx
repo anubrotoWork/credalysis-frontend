@@ -9,12 +9,17 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const backendApiUrl = "http://34.9.145.33:8000";
+  
+  // const backendApiUrl = "http://34.9.145.33:8000";
+
+  const backendApiUrl = process.env.NEXT_PUBLIC_BACKEND_API_URL;
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError("");
+
+    // console.log(backendApiUrl);
 
     try {
       const res = await fetch(`${backendApiUrl}/login`, {

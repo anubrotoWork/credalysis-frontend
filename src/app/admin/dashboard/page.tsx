@@ -9,7 +9,7 @@ export default function DashboardPage() {
   const [riskData, setRiskData] = useState<RiskAssessment[]>([]);
   const [goals, setGoals] = useState<FinancialGoal[]>([]);
   const router = useRouter();
-
+  const backendApiUrl = process.env.NEXT_PUBLIC_BACKEND_API_URL;
   useEffect(() => {
     const isLoggedIn = localStorage.getItem("auth") === "true";
     const isAdmin = localStorage.getItem("access") == "admin";
@@ -28,8 +28,8 @@ export default function DashboardPage() {
 
   useEffect(() => {
     const fetchData = async () => {
-      const resRisk = await fetch('http://34.55.216.204:8000/risk_assessments');
-      const resGoals = await fetch('http://34.55.216.204:8000/financial_goals');
+      const resRisk = await fetch(`${backendApiUrl}/risk_assessments`);
+      const resGoals = await fetch(`${backendApiUrl}/financial_goals`);
       setRiskData(await resRisk.json());
       setGoals(await resGoals.json());
     };

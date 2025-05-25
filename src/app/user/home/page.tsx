@@ -24,7 +24,6 @@ export default function HomePage() {
     const isLoggedIn = localStorage.getItem("auth") === "true";
     const isUser = localStorage.getItem("access") == "user";
 
-    console.log(localStorage);
     if (!isLoggedIn) {
       router.push("/login");
     }

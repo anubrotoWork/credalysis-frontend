@@ -20,7 +20,7 @@ export default function LoansPage() {
   const [loans, setLoans] = useState<Loan[]>([]);
   const [loading, setLoading] = useState(true);
   const [email, setEmail] = useState<string | null>(null);
-  const backendApiUrl = "http://34.9.145.33:8000";
+  const backendApiUrl = process.env.NEXT_PUBLIC_BACKEND_API_URL;;
 
   useEffect(() => {
     const storedEmail = localStorage.getItem('email');
@@ -54,7 +54,7 @@ export default function LoansPage() {
     } else if (email === null && typeof window !== 'undefined') {
         setLoading(false); 
     }
-  }, [email]);
+  }, [email, backendApiUrl]);
 
   const formatDate = (dateString: string) => {
     if (!dateString) return 'N/A';
