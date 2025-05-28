@@ -1,8 +1,18 @@
+// src/app/client/model_manager/credit_report/page.tsx
+
 "use client";
 
-import { useState, useEffect, JSX } from "react";
+import React, { useState, useEffect, JSX, useCallback, FormEvent } from "react"; // Import React
 import { useRouter } from "next/navigation";
+import {
+  Loader2,
+  AlertTriangle,
+  Bot,
+  BarChart,
+  RefreshCcw,
+} from "lucide-react";
 
+// Form state type
 type CreditReportFormType = {
   [key: string]: string;
   credit_score: string;
@@ -21,7 +31,22 @@ type CreditReportFormType = {
   available_credit: string;
 };
 
-// Helper function to convert snake_case to Title Case
+// Type for classification report metrics
+type Metrics = {
+  precision: number;
+  recall: number;
+  "f1-score": number;
+  support: number;
+};
+
+// Type for the full classification report structure
+type ClassificationReport = {
+  [category: string]: Metrics | number;
+  accuracy: number;
+  "macro avg": Metrics;
+  "weighted avg": Metrics;
+};
+
 const toTitleCase = (str: string) =>
   str
     .replace(/_/g, " ")
@@ -30,17 +55,50 @@ const toTitleCase = (str: string) =>
       (txt) => txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase()
     );
 
-export default function CreditReportModelPage() {
+async function authFetch(
+  url: string,
+  options: RequestInit = {}
+): Promise<Response> {
+  const token = localStorage.getItem("authToken");
+  const headers = new Headers(options.headers || {});
+  if (token) {
+    headers.append("Authorization", `Bearer ${token}`);
+  }
+
+  // Set Content-Type to application/json if:
+  // 1. A body exists
+  // 2. No Content-Type is already set by the caller
+  // 3. The body is a string (implying it's likely a JSON.stringify-ed object)
+  if (
+    options.body &&
+    typeof options.body === "string" &&
+    !headers.has("Content-Type")
+  ) {
+    headers.append("Content-Type", "application/json");
+  }
+
+  const response = await fetch(url, { ...options, headers });
+
+  if (response.status === 401) {
+    if (typeof window !== "undefined") {
+      localStorage.clear();
+      if (window.location.pathname !== "/login")
+        window.location.href = "/login?sessionExpired=true";
+    }
+    throw new Error("Session expired or unauthorized. Please log in again.");
+  }
+  return response;
+}
+
+export default function CreditReportModelManagerPage() {
   const router = useRouter();
   const backendApiUrl = process.env.NEXT_PUBLIC_BACKEND_API_URL;
 
-  // Tab state
   const [tab, setTab] = useState<"predict" | "performance" | "update">(
     "predict"
   );
 
-  // Form state
-  const [predictForm, setPredictForm] = useState<CreditReportFormType>({
+  const initialFormState: CreditReportFormType = {
     credit_score: "",
     payment_history_percent: "",
     credit_utilization_percent: "",
@@ -55,247 +113,369 @@ export default function CreditReportModelPage() {
     installment_debt: "",
     mortgage_debt: "",
     available_credit: "",
-  });
-
-  type Metrics = {
-    precision: number;
-    recall: number;
-    "f1-score": number;
-    support: number;
   };
+  const [predictForm, setPredictForm] =
+    useState<CreditReportFormType>(initialFormState);
 
-  // Result states
   const [predictResult, setPredictResult] = useState<string | null>(null);
-  const [perfResult, setPerfResult] = useState<string | JSX.Element | null>(
+  const [perfResult, setPerfResult] = useState<JSX.Element | string | null>(
     null
   );
   const [updateResult, setUpdateResult] = useState<string | null>(null);
 
-  // Auth check
+  const [loadingState, setLoadingState] = useState({
+    predict: false,
+    performance: false,
+    update: false,
+  });
+  const [errorState, setErrorState] = useState({
+    predict: null as string | null,
+    performance: null as string | null,
+    update: null as string | null,
+  });
+
   useEffect(() => {
-    const isLoggedIn = localStorage.getItem("auth") === "true";
-    const isClient = localStorage.getItem("access") === "client";
-    if (!isLoggedIn || !isClient) {
-      alert("You are not authorized.");
+    const authToken = localStorage.getItem("authToken");
+    const userAccessLevel = localStorage.getItem("access");
+    if (!authToken) {
       router.push("/login");
+      return;
+    }
+    if (userAccessLevel !== "client") {
+      alert("You do not have permission to access this model management page.");
+      localStorage.clear();
+      router.push("/login");
+      return;
     }
   }, [router]);
 
-  // --- Handlers for tabs ---
   const handlePredictChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setPredictForm({ ...predictForm, [e.target.name]: e.target.value });
   };
 
-  const handlePredictSubmit = async () => {
-    setPredictResult("Loading...");
-    try {
-      const response = await fetch(
-        `${backendApiUrl}/model/credit_report/predict`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(
-            Object.fromEntries(
-              Object.entries(predictForm).map(([k, v]) => [
-                k,
-                v === "" ? null : isNaN(Number(v)) ? v : Number(v),
-              ])
-            )
-          ),
-        }
-      );
-      const result = await response.json();
-      setPredictResult(
-        result.predicted_credit_rating
-          ? `Predicted Credit Rating: ${result.predicted_credit_rating}`
-          : JSON.stringify(result)
-      );
-    } catch (error) {
-      if (error instanceof Error) {
-        setPredictResult("Error: " + error.message);
-      } else {
-        setPredictResult("An unknown error occurred.");
-      }
-    }
+  // Type guard for error objects
+  const isErrorWithMessage = (error: unknown): error is { message: string } => {
+    return (
+      typeof error === "object" &&
+      error !== null &&
+      "message" in error &&
+      typeof (error as { message: unknown }).message === "string"
+    );
   };
 
-  const handlePerfSubmit = async () => {
-    setPerfResult("Loading...");
+  const handlePredictSubmit = useCallback(
+    async (event?: FormEvent) => {
+      if (event) event.preventDefault();
+      if (!backendApiUrl) {
+        setErrorState((prev) => ({
+          ...prev,
+          predict: "Backend API URL not configured.",
+        }));
+        return;
+      }
+
+      setLoadingState((prev) => ({ ...prev, predict: true }));
+      setPredictResult(null);
+      setErrorState((prev) => ({ ...prev, predict: null }));
+
+      try {
+        const payload = Object.fromEntries(
+          Object.entries(predictForm).map(([k, v]) => [
+            k,
+            v === "" || v === null ? null : isNaN(Number(v)) ? v : Number(v),
+          ])
+        );
+        const response = await authFetch(
+          `${backendApiUrl}/model/credit_report/predict`,
+          {
+            method: "POST",
+            body: JSON.stringify(payload),
+          }
+        );
+        const result = await response.json();
+        if (!response.ok) {
+          throw new Error(
+            result.detail ||
+              result.error ||
+              `HTTP ${response.status}: Failed to get prediction`
+          );
+        }
+        setPredictResult(
+          result.predicted_credit_rating
+            ? `Predicted Credit Rating: ${result.predicted_credit_rating}`
+            : `Prediction successful. Response: ${JSON.stringify(result)}`
+        );
+      } catch (error: unknown) {
+        // Catch error as unknown
+        console.error("Prediction error:", error);
+        if (isErrorWithMessage(error)) {
+          // Use type guard
+          setErrorState((prev) => ({ ...prev, predict: error.message }));
+        } else if (typeof error === "string") {
+          setErrorState((prev) => ({ ...prev, predict: error }));
+        } else {
+          setErrorState((prev) => ({
+            ...prev,
+            predict: "An unknown error occurred during prediction.",
+          }));
+        }
+      } finally {
+        setLoadingState((prev) => ({ ...prev, predict: false }));
+      }
+    },
+    [backendApiUrl, predictForm]
+  );
+
+  const handlePerfSubmit = useCallback(async () => {
+    if (!backendApiUrl) {
+      setErrorState((prev) => ({
+        ...prev,
+        performance: "Backend API URL not configured.",
+      }));
+      return;
+    }
+
+    setLoadingState((prev) => ({ ...prev, performance: true }));
+    setPerfResult(null);
+    setErrorState((prev) => ({ ...prev, performance: null }));
+
     try {
-      const response = await fetch(`${backendApiUrl}/model/credit_report/performance`, {
-        method: "POST",
-      });
+      const response = await authFetch(
+        `${backendApiUrl}/model/credit_report/performance`,
+        { method: "POST" }
+      );
       const result = await response.json();
-  
+      if (!response.ok) {
+        throw new Error(
+          result.detail ||
+            result.error ||
+            `HTTP ${response.status}: Failed to get performance metrics`
+        );
+      }
+
       if (result.classification_report) {
-        const classificationReport = result.classification_report;
-  
+        const report = result.classification_report as ClassificationReport;
         setPerfResult(
-          <div className="overflow-x-auto bg-white p-4 rounded shadow-lg">
-            <h3 className="text-lg font-semibold text-gray-700 mb-4">
-              Model Performance
+          <div className="overflow-x-auto bg-white p-4 sm:p-6 rounded-lg shadow-md border border-gray-200">
+            <h3 className="text-lg sm:text-xl font-semibold text-gray-800 mb-4">
+              Model Performance Metrics
             </h3>
-            <table className="min-w-full table-auto text-sm text-gray-700">
+            <table className="min-w-full table-auto text-xs sm:text-sm text-gray-700">
               <thead className="bg-gray-100">
                 <tr>
-                  <th className="px-4 py-2 text-left">Category</th>
-                  <th className="px-4 py-2 text-left">Precision</th>
-                  <th className="px-4 py-2 text-left">Recall</th>
-                  <th className="px-4 py-2 text-left">F1-Score</th>
-                  <th className="px-4 py-2 text-left">Support</th>
+                  {[
+                    "Category",
+                    "Precision",
+                    "Recall",
+                    "F1-Score",
+                    "Support",
+                  ].map((header) => (
+                    <th
+                      key={header}
+                      className="px-3 py-2 sm:px-4 sm:py-2 text-left font-medium text-gray-500 uppercase tracking-wider"
+                    >
+                      {header}
+                    </th>
+                  ))}
                 </tr>
               </thead>
-              <tbody>
-                {Object.entries(classificationReport).map(([category, metrics]) => {
-                  // Assert that metrics is of type Metrics
-                  const typedMetrics = metrics as Metrics;
-  
-                  // Only render rows for non-summary categories
-                  return category !== "accuracy" &&
-                    category !== "macro avg" &&
-                    category !== "weighted avg" ? (
-                    <tr key={category} className="border-t">
-                      <td className="px-4 py-2 font-medium">{category}</td>
-                      <td className="px-4 py-2">{typedMetrics.precision}</td>
-                      <td className="px-4 py-2">{typedMetrics.recall}</td>
-                      <td className="px-4 py-2">{typedMetrics["f1-score"]}</td>
-                      <td className="px-4 py-2">{typedMetrics.support}</td>
-                    </tr>
-                  ) : null;
-                })}
+              <tbody className="divide-y divide-gray-200">
+                {Object.entries(report)
+                  .filter(
+                    ([category]) =>
+                      !["accuracy", "macro avg", "weighted avg"].includes(
+                        category.toLowerCase()
+                      )
+                  )
+                  .map(([category, metrics]) => {
+                    const typedMetrics = metrics as Metrics;
+                    return (
+                      <tr key={category} className="hover:bg-gray-50">
+                        <td className="px-3 py-2 sm:px-4 sm:py-2 font-medium">
+                          {toTitleCase(category)}
+                        </td>
+                        <td className="px-3 py-2 sm:px-4 sm:py-2">
+                          {typedMetrics.precision?.toFixed(3) || "N/A"}
+                        </td>
+                        <td className="px-3 py-2 sm:px-4 sm:py-2">
+                          {typedMetrics.recall?.toFixed(3) || "N/A"}
+                        </td>
+                        <td className="px-3 py-2 sm:px-4 sm:py-2">
+                          {typedMetrics["f1-score"]?.toFixed(3) || "N/A"}
+                        </td>
+                        <td className="px-3 py-2 sm:px-4 sm:py-2">
+                          {typedMetrics.support}
+                        </td>
+                      </tr>
+                    );
+                  })}
               </tbody>
             </table>
-  
-            {/* Optionally, display accuracy and averages */}
-            <div className="mt-6">
-              <h4 className="text-lg font-semibold text-gray-700">
-                Overall Performance
+            <div className="mt-6 pt-4 border-t border-gray-200">
+              <h4 className="text-md sm:text-lg font-semibold text-gray-800 mb-2">
+                Overall Summary
               </h4>
-              <ul className="list-disc pl-6 text-sm text-gray-600">
+              <ul className="list-disc list-inside space-y-1 text-xs sm:text-sm text-gray-600">
                 <li>
-                  <strong>Accuracy:</strong> {classificationReport.accuracy}
+                  <strong>Accuracy:</strong>{" "}
+                  {report.accuracy?.toFixed(3) || "N/A"}
                 </li>
-                <li>
-                  <strong>Macro Avg - Precision:</strong>{" "}
-                  {classificationReport["macro avg"].precision}
-                </li>
-                <li>
-                  <strong>Macro Avg - Recall:</strong>{" "}
-                  {classificationReport["macro avg"].recall}
-                </li>
-                <li>
-                  <strong>Macro Avg - F1-Score:</strong>{" "}
-                  {classificationReport["macro avg"]["f1-score"]}
-                </li>
-                <li>
-                  <strong>Weighted Avg - Precision:</strong>{" "}
-                  {classificationReport["weighted avg"].precision}
-                </li>
-                <li>
-                  <strong>Weighted Avg - Recall:</strong>{" "}
-                  {classificationReport["weighted avg"].recall}
-                </li>
-                <li>
-                  <strong>Weighted Avg - F1-Score:</strong>{" "}
-                  {classificationReport["weighted avg"]["f1-score"]}
-                </li>
+                {(["macro avg", "weighted avg"] as const).map((avgType) => {
+                  const avgMetrics = report[avgType];
+                  if (
+                    avgMetrics &&
+                    typeof avgMetrics === "object" &&
+                    "precision" in avgMetrics
+                  ) {
+                    // Check if avgMetrics is of type Metrics
+                    return (
+                      <React.Fragment key={avgType}>
+                        <li>
+                          <strong>{toTitleCase(avgType)} - Precision:</strong>{" "}
+                          {(avgMetrics as Metrics).precision?.toFixed(3) ||
+                            "N/A"}
+                        </li>
+                        <li>
+                          <strong>{toTitleCase(avgType)} - Recall:</strong>{" "}
+                          {(avgMetrics as Metrics).recall?.toFixed(3) || "N/A"}
+                        </li>
+                        <li>
+                          <strong>{toTitleCase(avgType)} - F1-Score:</strong>{" "}
+                          {(avgMetrics as Metrics)["f1-score"]?.toFixed(3) ||
+                            "N/A"}
+                        </li>
+                      </React.Fragment>
+                    );
+                  }
+                  return null;
+                })}
               </ul>
             </div>
           </div>
         );
       } else {
-        setPerfResult(JSON.stringify(result));
+        setPerfResult(`Performance data received: ${JSON.stringify(result)}`);
       }
-    } catch (error) {
-      if (error instanceof Error) {
-        setPerfResult("Error: " + error.message);
+    } catch (error: unknown) {
+      // Catch error as unknown
+      console.error("Performance evaluation error:", error);
+      if (isErrorWithMessage(error)) {
+        // Use type guard
+        setErrorState((prev) => ({ ...prev, performance: error.message }));
+      } else if (typeof error === "string") {
+        setErrorState((prev) => ({ ...prev, performance: error }));
       } else {
-        setPerfResult("An unknown error occurred.");
+        setErrorState((prev) => ({
+          ...prev,
+          performance:
+            "An unknown error occurred during performance evaluation.",
+        }));
       }
+    } finally {
+      setLoadingState((prev) => ({ ...prev, performance: false }));
     }
-  };
+  }, [backendApiUrl]);
 
-  const handleUpdateSubmit = async () => {
-    setUpdateResult("Loading...");
+  const handleUpdateSubmit = useCallback(async () => {
+    if (!backendApiUrl) {
+      setErrorState((prev) => ({
+        ...prev,
+        update: "Backend API URL not configured.",
+      }));
+      return;
+    }
+
+    setLoadingState((prev) => ({ ...prev, update: true }));
+    setUpdateResult(null);
+    setErrorState((prev) => ({ ...prev, update: null }));
+
     try {
-      const response = await fetch(
+      const response = await authFetch(
         `${backendApiUrl}/model/credit_report/update`,
-        {
-          method: "POST",
-        }
+        { method: "POST" }
       );
       const result = await response.json();
-      setUpdateResult(result.message ? result.message : JSON.stringify(result));
-    } catch (error) {
-      if (error instanceof Error) {
-        setUpdateResult("Error: " + error.message);
-      } else {
-        setUpdateResult("An unknown error occurred.");
+      if (!response.ok) {
+        throw new Error(
+          result.detail ||
+            result.error ||
+            `HTTP ${response.status}: Failed to update model`
+        );
       }
+      setUpdateResult(
+        result.message ||
+          `Model update process initiated. Response: ${JSON.stringify(result)}`
+      );
+    } catch (error: unknown) {
+      // Catch error as unknown
+      console.error("Model update error:", error);
+      if (isErrorWithMessage(error)) {
+        // Use type guard
+        setErrorState((prev) => ({ ...prev, update: error.message }));
+      } else if (typeof error === "string") {
+        setErrorState((prev) => ({ ...prev, update: error }));
+      } else {
+        setErrorState((prev) => ({
+          ...prev,
+          update: "An unknown error occurred during model update.",
+        }));
+      }
+    } finally {
+      setLoadingState((prev) => ({ ...prev, update: false }));
     }
-  };
+  }, [backendApiUrl]);
 
   const commonButtonClasses =
-    "flex-1 py-3 px-3 text-sm font-medium rounded-lg transition-all duration-150 ease-in-out focus:outline-none";
-  const activeTabClasses = `${commonButtonClasses} bg-white text-indigo-600 shadow-lg hover:shadow-xl hover:bg-indigo-50 transform hover:-translate-y-1 hover:scale-105 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-1 focus:ring-offset-white`;
-  const inactiveTabClasses = `${commonButtonClasses} bg-blue-100 text-blue-700 hover:bg-blue-200 focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50`;
+    "flex-1 py-3 px-2 sm:px-3 text-xs sm:text-sm font-medium rounded-lg transition-all duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-offset-white";
+  const activeTabClasses = `${commonButtonClasses} bg-white text-indigo-700 shadow-lg transform scale-105 focus:ring-indigo-500`;
+  const inactiveTabClasses = `${commonButtonClasses} bg-indigo-500 text-white hover:bg-indigo-600 focus:ring-indigo-400`;
+
   const actionButtonClasses =
-    "w-full flex justify-center py-2.5 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-500 hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-150";
+    "w-full flex justify-center items-center py-2.5 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors duration-150 disabled:opacity-60";
   const resultContainerClasses =
     "mt-6 p-4 bg-gray-50 rounded-md border border-gray-200 text-sm text-gray-700 break-words shadow-inner";
+  const errorContainerClasses =
+    "mt-4 p-3 bg-red-50 border-l-4 border-red-400 text-red-700 text-xs rounded-md";
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 px-4 py-10">
-      <h1 className="text-4xl font-bold text-gray-800 mb-8 text-center">
-        Credit Report Model Manager
-      </h1>
+    <div className="flex flex-col items-center justify-start min-h-screen bg-gradient-to-br from-gray-100 to-indigo-100 px-4 py-10 sm:py-16">
+      <header className="mb-8 sm:mb-12 text-center">
+        <Bot className="w-16 h-16 text-indigo-600 mx-auto mb-4" />
+        <h1 className="text-3xl sm:text-4xl font-bold text-gray-800">
+          Credit Rating Model Interface
+        </h1>
+        <p className="text-sm sm:text-md text-gray-500 mt-2">
+          Predict ratings, evaluate performance, and manage model updates.
+        </p>
+      </header>
 
-      {/* Tabs */}
-      <div className="flex w-full max-w-lg mb-8 gap-2">
-        {" "}
-        {/* Increased max-w slightly */}
-        <button
-          className={`${
-            tab === "predict" ? activeTabClasses : inactiveTabClasses
-          }`}
-          onClick={() => setTab("predict")}
-        >
-          Predict Credit Rating
-        </button>
-        <button
-          className={`${
-            tab === "performance" ? activeTabClasses : inactiveTabClasses
-          }`}
-          onClick={() => setTab("performance")}
-        >
-          Model Performance
-        </button>
-        <button
-          className={`${
-            tab === "update" ? activeTabClasses : inactiveTabClasses
-          }`}
-          onClick={() => setTab("update")}
-        >
-          Update Model
-        </button>
+      <div className="flex w-full max-w-xl mb-8 gap-2 p-1.5 bg-indigo-600 rounded-xl shadow-md">
+        {(["predict", "performance", "update"] as const).map((tabName) => (
+          <button
+            key={tabName}
+            className={`${
+              tab === tabName ? activeTabClasses : inactiveTabClasses
+            }`}
+            onClick={() => setTab(tabName)}
+          >
+            {toTitleCase(tabName.replace("_", " "))}
+          </button>
+        ))}
       </div>
 
-      {/* Tab Content */}
-      <div className="w-full max-w-lg bg-white rounded-lg shadow-xl p-8">
-        {" "}
-        {/* Increased max-w, padding and shadow */}
+      <div className="w-full max-w-xl bg-white rounded-xl shadow-2xl p-6 sm:p-8">
         {tab === "predict" && (
-          <div>
-            <h2 className="text-xl font-semibold text-gray-800 mb-6 pb-3 border-b border-gray-300">
+          <form onSubmit={handlePredictSubmit}>
+            <h2 className="text-xl sm:text-2xl font-semibold text-gray-800 mb-6 pb-3 border-b border-gray-200">
+              <Bot className="inline-block mr-2 w-6 h-6 text-indigo-500" />
               Predict Credit Rating
             </h2>
-            <div className="space-y-5 mb-6">
-              {/* MODIFIED LINE: Removed the problematic cast. 'field' will be inferred as string. */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-5 gap-y-4 mb-6">
               {Object.keys(predictForm).map((field) => (
                 <div key={field}>
                   <label
                     htmlFor={field}
-                    className="block text-sm font-medium text-gray-700 mb-1.5"
+                    className="block text-xs font-medium text-gray-600 mb-1"
                   >
                     {toTitleCase(field)}
                   </label>
@@ -304,8 +484,8 @@ export default function CreditReportModelPage() {
                     name={field}
                     type="number"
                     step="any"
-                    placeholder={toTitleCase(field)}
-                    value={predictForm[field]} // This is fine: field is string, predictForm[string] is string
+                    placeholder="Enter value"
+                    value={predictForm[field]}
                     onChange={handlePredictChange}
                     className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm placeholder-gray-400 appearance-none [-moz-appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                   />
@@ -313,43 +493,87 @@ export default function CreditReportModelPage() {
               ))}
             </div>
             <button
-              onClick={handlePredictSubmit}
+              type="submit"
+              disabled={loadingState.predict}
               className={actionButtonClasses}
             >
-              Predict
+              {loadingState.predict ? (
+                <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+              ) : null}
+              {loadingState.predict ? "Predicting..." : "Get Prediction"}
             </button>
-            {predictResult && (
+            {errorState.predict && (
+              <div className={errorContainerClasses}>
+                <AlertTriangle className="inline w-4 h-4 mr-1" />{" "}
+                {errorState.predict}
+              </div>
+            )}
+            {predictResult && !errorState.predict && (
               <div className={resultContainerClasses}>{predictResult}</div>
             )}
-          </div>
+          </form>
         )}
+
         {tab === "performance" && (
           <div>
-            <h2 className="text-xl font-semibold text-gray-800 mb-6 pb-3 border-b border-gray-300">
-              Model Performance
+            <h2 className="text-xl sm:text-2xl font-semibold text-gray-800 mb-6 pb-3 border-b border-gray-200">
+              <BarChart className="inline-block mr-2 w-6 h-6 text-indigo-500" />
+              Model Performance Metrics
             </h2>
             <button
               onClick={handlePerfSubmit}
-              className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 w-full"
+              disabled={loadingState.performance}
+              className={`${actionButtonClasses} mb-4`}
             >
-              Evaluate Model
+              {loadingState.performance ? (
+                <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+              ) : null}
+              {loadingState.performance
+                ? "Evaluating..."
+                : "Evaluate Model Performance"}
             </button>
-            {perfResult && <div className="mt-4">{perfResult}</div>}
+            {errorState.performance && (
+              <div className={errorContainerClasses}>
+                <AlertTriangle className="inline w-4 h-4 mr-1" />{" "}
+                {errorState.performance}
+              </div>
+            )}
+            {perfResult && !errorState.performance && (
+              <div className="mt-4">{perfResult}</div>
+            )}
           </div>
         )}
 
         {tab === "update" && (
           <div>
-            <h2 className="text-xl font-semibold text-gray-800 mb-6 pb-3 border-b border-gray-300">
-              Update Model
+            <h2 className="text-xl sm:text-2xl font-semibold text-gray-800 mb-6 pb-3 border-b border-gray-200">
+              <RefreshCcw className="inline-block mr-2 w-6 h-6 text-indigo-500" />
+              Update & Retrain Model
             </h2>
+            <p className="text-sm text-gray-600 mb-4">
+              This action will trigger the model retraining process using the
+              latest data from the database. This may take some time depending
+              on the dataset size and model complexity.
+            </p>
             <button
               onClick={handleUpdateSubmit}
+              disabled={loadingState.update}
               className={actionButtonClasses}
             >
-              Retrain Model from Database
+              {loadingState.update ? (
+                <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+              ) : null}
+              {loadingState.update
+                ? "Updating..."
+                : "Initiate Model Retraining"}
             </button>
-            {updateResult && (
+            {errorState.update && (
+              <div className={errorContainerClasses}>
+                <AlertTriangle className="inline w-4 h-4 mr-1" />{" "}
+                {errorState.update}
+              </div>
+            )}
+            {updateResult && !errorState.update && (
               <div className={resultContainerClasses}>{updateResult}</div>
             )}
           </div>

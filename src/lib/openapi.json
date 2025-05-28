@@ -1,21 +1,93 @@
 {
   "openapi": "3.1.0",
-  "info": { "title": "Credalysis", "version": "0.1.0" },
+  "info": {
+    "title": "Credalysis API with Google Cloud SQL and Google Agent Development Kit",
+    "version": "0.1.0"
+  },
   "paths": {
+    "/token": {
+      "post": {
+        "tags": ["Authentication"],
+        "summary": "Login For Access Token",
+        "operationId": "login_for_access_token_token_post",
+        "requestBody": {
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "$ref": "#/components/schemas/Body_login_for_access_token_token_post"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object",
+                  "title": "Response Login For Access Token Token Post"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/login": {
+      "post": {
+        "summary": "Login",
+        "operationId": "login_login_post",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object",
+                  "title": "Response Login Login Post"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/users/": {
       "get": {
+        "tags": ["Users"],
         "summary": "Get Users",
         "operationId": "get_users_users__get",
         "responses": {
           "200": {
             "description": "Successful Response",
-            "content": { "application/json": { "schema": {} } }
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": { "additionalProperties": true, "type": "object" },
+                  "type": "array",
+                  "title": "Response Get Users Users  Get"
+                }
+              }
+            }
           }
         }
       }
     },
     "/users/profile/{email}": {
       "get": {
+        "tags": ["Users"],
         "summary": "Get User Profile",
         "operationId": "get_user_profile_users_profile__email__get",
         "parameters": [
@@ -29,7 +101,15 @@
         "responses": {
           "200": {
             "description": "Successful Response",
-            "content": { "application/json": { "schema": {} } }
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Get User Profile Users Profile  Email  Get"
+                }
+              }
+            }
           },
           "422": {
             "description": "Validation Error",
@@ -42,6 +122,7 @@
         }
       },
       "put": {
+        "tags": ["Users"],
         "summary": "Update User Profile",
         "operationId": "update_user_profile_users_profile__email__put",
         "parameters": [
@@ -80,45 +161,27 @@
         }
       }
     },
-    "/user/loans/{email}": {
+    "/user/loans/": {
       "get": {
+        "tags": ["Users"],
         "summary": "Get User Loans",
-        "operationId": "get_user_loans_user_loans__email__get",
-        "parameters": [
-          {
-            "name": "email",
-            "in": "path",
-            "required": true,
-            "schema": { "type": "string", "title": "Email" }
-          }
-        ],
+        "operationId": "get_user_loans_user_loans__get",
         "responses": {
           "200": {
             "description": "Successful Response",
             "content": { "application/json": { "schema": {} } }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
-              }
-            }
           }
-        }
+        },
+        "security": [{ "OAuth2PasswordBearer": [] }]
       }
     },
-    "/user/transactions/{email}": {
+    "/user/transactions/": {
       "get": {
+        "tags": ["Users"],
         "summary": "Get User Transactions",
-        "operationId": "get_user_transactions_user_transactions__email__get",
+        "operationId": "get_user_transactions_user_transactions__get",
+        "security": [{ "OAuth2PasswordBearer": [] }],
         "parameters": [
-          {
-            "name": "email",
-            "in": "path",
-            "required": true,
-            "schema": { "type": "string", "title": "Email" }
-          },
           {
             "name": "start_date",
             "in": "query",
@@ -174,26 +237,30 @@
     },
     "/user/ask-ai": {
       "post": {
+        "tags": ["Users"],
         "summary": "Ask Ai",
+        "description": "Endpoint to handle AI queries for the authenticated user.\nExpects JSON with 'query'. Email is derived from the JWT token.",
         "operationId": "ask_ai_user_ask_ai_post",
         "responses": {
           "200": {
             "description": "Successful Response",
             "content": { "application/json": { "schema": {} } }
           }
-        }
+        },
+        "security": [{ "OAuth2PasswordBearer": [] }]
       }
     },
-    "/loans/{user_id}": {
+    "/loans/{customer_id}": {
       "get": {
-        "summary": "Get Loans",
-        "operationId": "get_loans_loans__user_id__get",
+        "tags": ["Loans"],
+        "summary": "Get Loans By Customer",
+        "operationId": "get_loans_by_customer_loans__customer_id__get",
         "parameters": [
           {
-            "name": "user_id",
+            "name": "customer_id",
             "in": "path",
             "required": true,
-            "schema": { "type": "string", "title": "User Id" }
+            "schema": { "type": "string", "title": "Customer Id" }
           }
         ],
         "responses": {
@@ -214,6 +281,7 @@
     },
     "/insights/": {
       "post": {
+        "tags": ["Insights"],
         "summary": "Add Insight",
         "operationId": "add_insight_insights__post",
         "requestBody": {
@@ -240,92 +308,51 @@
         }
       }
     },
-    "/users/insights/agent/spending-optimizer/{email}": {
+    "/users/insights/agent/spending-optimizer/": {
       "get": {
+        "tags": ["Insights"],
         "summary": "Agent Spending Optimizer",
-        "operationId": "agent_spending_optimizer_users_insights_agent_spending_optimizer__email__get",
-        "parameters": [
-          {
-            "name": "email",
-            "in": "path",
-            "required": true,
-            "schema": { "type": "string", "title": "Email" }
-          }
-        ],
+        "operationId": "agent_spending_optimizer_users_insights_agent_spending_optimizer__get",
         "responses": {
           "200": {
             "description": "Successful Response",
             "content": { "application/json": { "schema": {} } }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
-              }
-            }
           }
-        }
+        },
+        "security": [{ "OAuth2PasswordBearer": [] }]
       }
     },
-    "/users/insights/agent/savings-strategy/{email}": {
+    "/users/insights/agent/savings-strategy/": {
       "get": {
+        "tags": ["Insights"],
         "summary": "Agent Savings Strategy",
-        "operationId": "agent_savings_strategy_users_insights_agent_savings_strategy__email__get",
-        "parameters": [
-          {
-            "name": "email",
-            "in": "path",
-            "required": true,
-            "schema": { "type": "string", "title": "Email" }
-          }
-        ],
+        "operationId": "agent_savings_strategy_users_insights_agent_savings_strategy__get",
         "responses": {
           "200": {
             "description": "Successful Response",
             "content": { "application/json": { "schema": {} } }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
-              }
-            }
           }
-        }
+        },
+        "security": [{ "OAuth2PasswordBearer": [] }]
       }
     },
-    "/users/insights/agent/budget-health/{email}": {
+    "/users/insights/agent/budget-health/": {
       "get": {
+        "tags": ["Insights"],
         "summary": "Agent Budget Health Review",
-        "operationId": "agent_budget_health_review_users_insights_agent_budget_health__email__get",
-        "parameters": [
-          {
-            "name": "email",
-            "in": "path",
-            "required": true,
-            "schema": { "type": "string", "title": "Email" }
-          }
-        ],
+        "operationId": "agent_budget_health_review_users_insights_agent_budget_health__get",
         "responses": {
           "200": {
             "description": "Successful Response",
             "content": { "application/json": { "schema": {} } }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
-              }
-            }
           }
-        }
+        },
+        "security": [{ "OAuth2PasswordBearer": [] }]
       }
     },
     "/analyze/text": {
       "post": {
+        "tags": ["AI Services"],
         "summary": "Analyze Text",
         "operationId": "analyze_text_analyze_text_post",
         "requestBody": {
@@ -354,6 +381,7 @@
     },
     "/predict/credit_score": {
       "get": {
+        "tags": ["AI Services"],
         "summary": "Predict Credit Score",
         "operationId": "predict_credit_score_predict_credit_score_get",
         "parameters": [
@@ -382,8 +410,9 @@
     },
     "/model/risk_level/update": {
       "post": {
-        "summary": "Retrain And Save Model",
-        "operationId": "retrain_and_save_model_model_risk_level_update_post",
+        "tags": ["AI Services"],
+        "summary": "Retrain And Save Risk Model",
+        "operationId": "retrain_and_save_risk_model_model_risk_level_update_post",
         "responses": {
           "200": {
             "description": "Successful Response",
@@ -394,8 +423,9 @@
     },
     "/model/risk_level/performance": {
       "post": {
-        "summary": "Model Performance From Db",
-        "operationId": "model_performance_from_db_model_risk_level_performance_post",
+        "tags": ["AI Services"],
+        "summary": "Risk Model Performance From Db",
+        "operationId": "risk_model_performance_from_db_model_risk_level_performance_post",
         "responses": {
           "200": {
             "description": "Successful Response",
@@ -406,6 +436,7 @@
     },
     "/model/risk_level/output": {
       "post": {
+        "tags": ["AI Services"],
         "summary": "Predict Risk Level",
         "operationId": "predict_risk_level_model_risk_level_output_post",
         "requestBody": {
@@ -434,6 +465,7 @@
     },
     "/model/credit_report/update": {
       "post": {
+        "tags": ["AI Services"],
         "summary": "Retrain Credit Report Model",
         "operationId": "retrain_credit_report_model_model_credit_report_update_post",
         "responses": {
@@ -446,6 +478,7 @@
     },
     "/model/credit_report/performance": {
       "post": {
+        "tags": ["AI Services"],
         "summary": "Credit Report Model Performance",
         "operationId": "credit_report_model_performance_model_credit_report_performance_post",
         "responses": {
@@ -458,6 +491,7 @@
     },
     "/model/credit_report/predict": {
       "post": {
+        "tags": ["AI Services"],
         "summary": "Predict Credit Rating",
         "operationId": "predict_credit_rating_model_credit_report_predict_post",
         "requestBody": {
@@ -486,18 +520,28 @@
     },
     "/risk_assessments": {
       "get": {
+        "tags": ["Risk Assessments"],
         "summary": "Get Risk Assessments",
         "operationId": "get_risk_assessments_risk_assessments_get",
         "responses": {
           "200": {
             "description": "Successful Response",
-            "content": { "application/json": { "schema": {} } }
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": { "additionalProperties": true, "type": "object" },
+                  "type": "array",
+                  "title": "Response Get Risk Assessments Risk Assessments Get"
+                }
+              }
+            }
           }
         }
       }
     },
     "/risk_assessments/agent/analyze_trends": {
       "get": {
+        "tags": ["Risk Assessments"],
         "summary": "Analyze Risk Assessment Trends",
         "operationId": "analyze_risk_assessment_trends_risk_assessments_agent_analyze_trends_get",
         "responses": {
@@ -508,62 +552,43 @@
         }
       }
     },
-    "/financial_goals": {
+    "/users/my-goals": {
       "get": {
-        "summary": "Get Financial Goals",
-        "operationId": "get_financial_goals_financial_goals_get",
+        "tags": ["Financial Goals", "Financial Goals"],
+        "summary": "Get My User Goals",
+        "operationId": "get_my_user_goals_users_my_goals_get",
         "responses": {
           "200": {
             "description": "Successful Response",
-            "content": { "application/json": { "schema": {} } }
-          }
-        }
-      }
-    },
-    "/users/goals/{email}": {
-      "get": {
-        "summary": "Get User Goals",
-        "operationId": "get_user_goals_users_goals__email__get",
-        "parameters": [
-          {
-            "name": "email",
-            "in": "path",
-            "required": true,
-            "schema": { "type": "string", "title": "Email" }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": { "application/json": { "schema": {} } }
-          },
-          "422": {
-            "description": "Validation Error",
             "content": {
               "application/json": {
-                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+                "schema": { "$ref": "#/components/schemas/UserGoalsResponse" }
               }
             }
           }
-        }
-      }
-    },
-    "/users/goals": {
+        },
+        "security": [{ "OAuth2PasswordBearer": [] }]
+      },
       "post": {
-        "summary": "Add Goal",
-        "operationId": "add_goal_users_goals_post",
+        "tags": ["Financial Goals", "Financial Goals"],
+        "summary": "Add My Goal",
+        "operationId": "add_my_goal_users_my_goals_post",
         "requestBody": {
           "content": {
             "application/json": {
-              "schema": { "$ref": "#/components/schemas/Goal" }
+              "schema": { "$ref": "#/components/schemas/GoalCreate" }
             }
           },
           "required": true
         },
         "responses": {
-          "200": {
+          "201": {
             "description": "Successful Response",
-            "content": { "application/json": { "schema": {} } }
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/GoalResponse" }
+              }
+            }
           },
           "422": {
             "description": "Validation Error",
@@ -573,33 +598,40 @@
               }
             }
           }
-        }
+        },
+        "security": [{ "OAuth2PasswordBearer": [] }]
       }
     },
-    "/users/goals/{goal_id}": {
+    "/users/my-goals/{goal_id}": {
       "put": {
-        "summary": "Update Goal",
-        "operationId": "update_goal_users_goals__goal_id__put",
+        "tags": ["Financial Goals", "Financial Goals"],
+        "summary": "Update My Goal",
+        "operationId": "update_my_goal_users_my_goals__goal_id__put",
+        "security": [{ "OAuth2PasswordBearer": [] }],
         "parameters": [
           {
             "name": "goal_id",
             "in": "path",
             "required": true,
-            "schema": { "type": "integer", "title": "Goal Id" }
+            "schema": { "type": "string", "title": "Goal Id" }
           }
         ],
         "requestBody": {
           "required": true,
           "content": {
             "application/json": {
-              "schema": { "$ref": "#/components/schemas/Goal" }
+              "schema": { "$ref": "#/components/schemas/GoalUpdate" }
             }
           }
         },
         "responses": {
           "200": {
             "description": "Successful Response",
-            "content": { "application/json": { "schema": {} } }
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/GoalResponse" }
+              }
+            }
           },
           "422": {
             "description": "Validation Error",
@@ -612,21 +644,20 @@
         }
       },
       "delete": {
-        "summary": "Delete Goal",
-        "operationId": "delete_goal_users_goals__goal_id__delete",
+        "tags": ["Financial Goals", "Financial Goals"],
+        "summary": "Delete My Goal",
+        "operationId": "delete_my_goal_users_my_goals__goal_id__delete",
+        "security": [{ "OAuth2PasswordBearer": [] }],
         "parameters": [
           {
             "name": "goal_id",
             "in": "path",
             "required": true,
-            "schema": { "type": "integer", "title": "Goal Id" }
+            "schema": { "type": "string", "title": "Goal Id" }
           }
         ],
         "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": { "application/json": { "schema": {} } }
-          },
+          "204": { "description": "Successful Response" },
           "422": {
             "description": "Validation Error",
             "content": {
@@ -638,33 +669,35 @@
         }
       }
     },
-    "/users/goals/agent/review/{email}": {
+    "/users/my-goals/agent/review": {
       "get": {
-        "summary": "Agent Goal Reviewer",
-        "operationId": "agent_goal_reviewer_users_goals_agent_review__email__get",
+        "tags": ["Financial Goals", "Financial Goals"],
+        "summary": "Agent My Goal Reviewer",
+        "operationId": "agent_my_goal_reviewer_users_my_goals_agent_review_get",
+        "security": [{ "OAuth2PasswordBearer": [] }],
         "parameters": [
-          {
-            "name": "email",
-            "in": "path",
-            "required": true,
-            "schema": { "type": "string", "title": "Email" }
-          },
           {
             "name": "user_question",
             "in": "query",
             "required": false,
             "schema": {
               "anyOf": [{ "type": "string" }, { "type": "null" }],
-              "description": "Specific question about the user's financial goals.",
               "title": "User Question"
-            },
-            "description": "Specific question about the user's financial goals."
+            }
           }
         ],
         "responses": {
           "200": {
             "description": "Successful Response",
-            "content": { "application/json": { "schema": {} } }
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Agent My Goal Reviewer Users My Goals Agent Review Get"
+                }
+              }
+            }
           },
           "422": {
             "description": "Validation Error",
@@ -677,45 +710,35 @@
         }
       }
     },
-    "/users/goals/agent/advice/{email}": {
+    "/users/my-goals/agent/advice": {
       "get": {
-        "summary": "Agent Goal Advisor",
-        "operationId": "agent_goal_advisor_users_goals_agent_advice__email__get",
-        "parameters": [
-          {
-            "name": "email",
-            "in": "path",
-            "required": true,
-            "schema": { "type": "string", "title": "Email" }
-          }
-        ],
+        "tags": ["Financial Goals", "Financial Goals"],
+        "summary": "Agent My Goal Advisor",
+        "operationId": "agent_my_goal_advisor_users_my_goals_agent_advice_get",
         "responses": {
           "200": {
             "description": "Successful Response",
-            "content": { "application/json": { "schema": {} } }
-          },
-          "422": {
-            "description": "Validation Error",
             "content": {
               "application/json": {
-                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object",
+                  "title": "Response Agent My Goal Advisor Users My Goals Agent Advice Get"
+                }
               }
             }
           }
-        }
+        },
+        "security": [{ "OAuth2PasswordBearer": [] }]
       }
     },
-    "/users/goals/agent/scenario/{email}": {
+    "/users/my-goals/agent/scenario": {
       "get": {
-        "summary": "Agent Scenario Planner",
-        "operationId": "agent_scenario_planner_users_goals_agent_scenario__email__get",
+        "tags": ["Financial Goals", "Financial Goals"],
+        "summary": "Agent My Scenario Planner",
+        "operationId": "agent_my_scenario_planner_users_my_goals_agent_scenario_get",
+        "security": [{ "OAuth2PasswordBearer": [] }],
         "parameters": [
-          {
-            "name": "email",
-            "in": "path",
-            "required": true,
-            "schema": { "type": "string", "title": "Email" }
-          },
           {
             "name": "scenario_description",
             "in": "query",
@@ -723,16 +746,22 @@
             "schema": {
               "type": "string",
               "minLength": 10,
-              "description": "Describe the 'what if' scenario. E.g., 'What if I increase my contribution to Dream Vacation by $50 per month?' or 'What if I pause contributions to New Gadget for 3 months to focus on my Emergency Fund?'",
               "title": "Scenario Description"
-            },
-            "description": "Describe the 'what if' scenario. E.g., 'What if I increase my contribution to Dream Vacation by $50 per month?' or 'What if I pause contributions to New Gadget for 3 months to focus on my Emergency Fund?'"
+            }
           }
         ],
         "responses": {
           "200": {
             "description": "Successful Response",
-            "content": { "application/json": { "schema": {} } }
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Agent My Scenario Planner Users My Goals Agent Scenario Get"
+                }
+              }
+            }
           },
           "422": {
             "description": "Validation Error",
@@ -745,20 +774,51 @@
         }
       }
     },
-    "/financial_goals/agent/analyze_trends": {
+    "/financial_goals_summary": {
       "get": {
-        "summary": "Analyze Financial Goal Trends",
-        "operationId": "analyze_financial_goal_trends_financial_goals_agent_analyze_trends_get",
+        "tags": ["Financial Goals", "Financial Goals"],
+        "summary": "Get All Financial Goals Summary",
+        "operationId": "get_all_financial_goals_summary_financial_goals_summary_get",
         "responses": {
           "200": {
             "description": "Successful Response",
-            "content": { "application/json": { "schema": {} } }
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": { "additionalProperties": true, "type": "object" },
+                  "type": "array",
+                  "title": "Response Get All Financial Goals Summary Financial Goals Summary Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/financial_goals/agent/analyze_trends_public": {
+      "get": {
+        "tags": ["Financial Goals", "Financial Goals"],
+        "summary": "Analyze Public Financial Goal Trends",
+        "operationId": "analyze_public_financial_goal_trends_financial_goals_agent_analyze_trends_public_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object",
+                  "title": "Response Analyze Public Financial Goal Trends Financial Goals Agent Analyze Trends Public Get"
+                }
+              }
+            }
           }
         }
       }
     },
     "/customer_products": {
       "get": {
+        "tags": ["Customer Products"],
         "summary": "Get Customer Products",
         "operationId": "get_customer_products_customer_products_get",
         "responses": {
@@ -771,20 +831,58 @@
     },
     "/product_recommendations": {
       "get": {
+        "tags": ["Product Recommendations"],
         "summary": "Get Recommendations",
         "operationId": "get_recommendations_product_recommendations_get",
         "responses": {
           "200": {
             "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": { "additionalProperties": true, "type": "object" },
+                  "type": "array",
+                  "title": "Response Get Recommendations Product Recommendations Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/financial_products/{product_id}": {
+      "get": {
+        "tags": ["Product Recommendations"],
+        "summary": "Get Financial Product Detail",
+        "operationId": "get_financial_product_detail_financial_products__product_id__get",
+        "parameters": [
+          {
+            "name": "product_id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string", "title": "Product Id" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
             "content": { "application/json": { "schema": {} } }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+              }
+            }
           }
         }
       }
     },
     "/users/recommendations/agent/explainer/{email}": {
       "get": {
+        "tags": ["Product Recommendations"],
         "summary": "Agent Recommendation Explainer",
-        "description": "Agent 1: Personalized Recommendation Explainer\nExplains the top 'limit' active product recommendations to a customer.",
         "operationId": "agent_recommendation_explainer_users_recommendations_agent_explainer__email__get",
         "parameters": [
           {
@@ -818,8 +916,8 @@
     },
     "/client/recommendations/agent/performance-summary": {
       "get": {
+        "tags": ["Product Recommendations"],
         "summary": "Agent Recommendation Performance Summary",
-        "description": "Agent 3 (Simplified): Recommendation Effectiveness Analysis Agent\nProvides an LLM-generated analysis of overall recommendation performance.",
         "operationId": "agent_recommendation_performance_summary_client_recommendations_agent_performance_summary_get",
         "responses": {
           "200": {
@@ -831,21 +929,29 @@
     },
     "/client/recommendations/performance-data": {
       "get": {
+        "tags": ["Product Recommendations"],
         "summary": "Get Performance Data",
-        "description": "Endpoint to retrieve aggregated performance data from product recommendations.\nReturns data grouped by product_id and status with count, average match score,\nand total accepted benefit.",
         "operationId": "get_performance_data_client_recommendations_performance_data_get",
         "responses": {
           "200": {
             "description": "Successful Response",
-            "content": { "application/json": { "schema": {} } }
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": { "additionalProperties": true, "type": "object" },
+                  "type": "array",
+                  "title": "Response Get Performance Data Client Recommendations Performance Data Get"
+                }
+              }
+            }
           }
         }
       }
     },
     "/client/recommendations/agent/reason-effectiveness": {
       "get": {
+        "tags": ["Product Recommendations"],
         "summary": "Agent Reason Effectiveness Analyzer",
-        "description": "Agent: Recommendation Reason Effectiveness Analyzer\nAnalyzes how different recommendation reasons perform in terms of acceptance.\nOptionally filters by a specific product_id.",
         "operationId": "agent_reason_effectiveness_analyzer_client_recommendations_agent_reason_effectiveness_get",
         "parameters": [
           {
@@ -874,324 +980,180 @@
         }
       }
     },
-    "/user/credit-reports/customer/{email}": {
+    "/user/credit-reports/customer/reports": {
       "get": {
-        "summary": "Get Reports By Email",
-        "operationId": "get_reports_by_email_user_credit_reports_customer__email__get",
-        "parameters": [
-          {
-            "name": "email",
-            "in": "path",
-            "required": true,
-            "schema": { "type": "string", "title": "Email" }
-          }
-        ],
+        "tags": ["Credit Reports"],
+        "summary": "Get My Credit Reports",
+        "operationId": "get_my_credit_reports_user_credit_reports_customer_reports_get",
         "responses": {
           "200": {
             "description": "Successful Response",
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "array",
                   "items": { "$ref": "#/components/schemas/CreditReport" },
-                  "title": "Response Get Reports By Email User Credit Reports Customer  Email  Get"
+                  "type": "array",
+                  "title": "Response Get My Credit Reports User Credit Reports Customer Reports Get"
                 }
               }
             }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
-              }
-            }
           }
-        }
+        },
+        "security": [{ "OAuth2PasswordBearer": [] }]
       }
     },
-    "/user/credit-reports/analyze/": {
+    "/user/credit-reports/analyze/my-credit": {
       "post": {
-        "summary": "Analyze Credit Health",
-        "operationId": "analyze_credit_health_user_credit_reports_analyze__post",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": { "$ref": "#/components/schemas/AnalyzeRequest" }
-            }
-          },
-          "required": true
-        },
+        "tags": ["Credit Reports"],
+        "summary": "Analyze My Credit Health",
+        "operationId": "analyze_my_credit_health_user_credit_reports_analyze_my_credit_post",
         "responses": {
           "200": {
             "description": "Successful Response",
-            "content": { "application/json": { "schema": {} } }
-          },
-          "422": {
-            "description": "Validation Error",
             "content": {
               "application/json": {
-                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object",
+                  "title": "Response Analyze My Credit Health User Credit Reports Analyze My Credit Post"
+                }
               }
             }
           }
-        }
+        },
+        "security": [{ "OAuth2PasswordBearer": [] }]
       }
     },
     "/api/user/overview/": {
       "get": {
+        "tags": ["Customer Overview"],
         "summary": "Overview",
         "operationId": "overview_api_user_overview__get",
-        "parameters": [
-          {
-            "name": "email",
-            "in": "query",
-            "required": true,
-            "schema": { "type": "string", "title": "Email" }
-          }
-        ],
         "responses": {
           "200": {
             "description": "Successful Response",
             "content": { "application/json": { "schema": {} } }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
-              }
-            }
           }
-        }
+        },
+        "security": [{ "OAuth2PasswordBearer": [] }]
       }
     },
     "/api/user/risk_and_lending/": {
       "get": {
+        "tags": ["Customer Overview"],
         "summary": "Risk And Lending",
         "operationId": "risk_and_lending_api_user_risk_and_lending__get",
-        "parameters": [
-          {
-            "name": "email",
-            "in": "query",
-            "required": true,
-            "schema": { "type": "string", "title": "Email" }
-          }
-        ],
         "responses": {
           "200": {
             "description": "Successful Response",
             "content": { "application/json": { "schema": {} } }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
-              }
-            }
           }
-        }
+        },
+        "security": [{ "OAuth2PasswordBearer": [] }]
       }
     },
     "/api/user/trends/": {
       "get": {
+        "tags": ["Customer Overview"],
         "summary": "Trends",
         "operationId": "trends_api_user_trends__get",
-        "parameters": [
-          {
-            "name": "email",
-            "in": "query",
-            "required": true,
-            "schema": { "type": "string", "title": "Email" }
-          }
-        ],
         "responses": {
           "200": {
             "description": "Successful Response",
             "content": { "application/json": { "schema": {} } }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
-              }
-            }
           }
-        }
+        },
+        "security": [{ "OAuth2PasswordBearer": [] }]
       }
     },
     "/api/user/increase_product_usage/": {
       "get": {
+        "tags": ["Customer Overview"],
         "summary": "Increase Product Usage",
         "operationId": "increase_product_usage_api_user_increase_product_usage__get",
-        "parameters": [
-          {
-            "name": "email",
-            "in": "query",
-            "required": true,
-            "schema": { "type": "string", "title": "Email" }
-          }
-        ],
         "responses": {
           "200": {
             "description": "Successful Response",
             "content": { "application/json": { "schema": {} } }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
-              }
-            }
           }
-        }
+        },
+        "security": [{ "OAuth2PasswordBearer": [] }]
       }
     },
     "/api/user/grow_merchant_rewards/": {
       "get": {
+        "tags": ["Customer Overview"],
         "summary": "Grow Merchant Rewards",
         "operationId": "grow_merchant_rewards_api_user_grow_merchant_rewards__get",
-        "parameters": [
-          {
-            "name": "email",
-            "in": "query",
-            "required": true,
-            "schema": { "type": "string", "title": "Email" }
-          }
-        ],
         "responses": {
           "200": {
             "description": "Successful Response",
             "content": { "application/json": { "schema": {} } }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
-              }
-            }
           }
-        }
+        },
+        "security": [{ "OAuth2PasswordBearer": [] }]
       }
     },
     "/api/user/save_customer_money/": {
       "get": {
+        "tags": ["Customer Overview"],
         "summary": "Save Customer Money",
         "operationId": "save_customer_money_api_user_save_customer_money__get",
-        "parameters": [
-          {
-            "name": "email",
-            "in": "query",
-            "required": true,
-            "schema": { "type": "string", "title": "Email" }
-          }
-        ],
         "responses": {
           "200": {
             "description": "Successful Response",
             "content": { "application/json": { "schema": {} } }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
-              }
-            }
           }
-        }
+        },
+        "security": [{ "OAuth2PasswordBearer": [] }]
       }
     },
     "/api/user/wallet_share/": {
       "get": {
+        "tags": ["Customer Overview"],
         "summary": "Wallet Share",
         "operationId": "wallet_share_api_user_wallet_share__get",
-        "parameters": [
-          {
-            "name": "email",
-            "in": "query",
-            "required": true,
-            "schema": { "type": "string", "title": "Email" }
-          }
-        ],
         "responses": {
           "200": {
             "description": "Successful Response",
             "content": { "application/json": { "schema": {} } }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
-              }
-            }
           }
-        }
+        },
+        "security": [{ "OAuth2PasswordBearer": [] }]
       }
     },
     "/api/user/benchmarking/": {
       "get": {
-        "summary": "Benchmarking",
-        "operationId": "benchmarking_api_user_benchmarking__get",
-        "parameters": [
-          {
-            "name": "email",
-            "in": "query",
-            "required": true,
-            "schema": { "type": "string", "title": "Email" }
-          }
-        ],
+        "tags": ["Customer Overview"],
+        "summary": "Get User Benchmarking Direct Db",
+        "description": "Provides financial benchmarking for the authenticated user against their peers,\nusing direct engine.connect() for database operations.",
+        "operationId": "get_user_benchmarking_direct_db_api_user_benchmarking__get",
         "responses": {
           "200": {
             "description": "Successful Response",
             "content": { "application/json": { "schema": {} } }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
-              }
-            }
           }
-        }
+        },
+        "security": [{ "OAuth2PasswordBearer": [] }]
       }
     },
     "/api/user/lifecycle/": {
       "get": {
+        "tags": ["Customer Overview"],
         "summary": "Lifecycle",
         "operationId": "lifecycle_api_user_lifecycle__get",
-        "parameters": [
-          {
-            "name": "email",
-            "in": "query",
-            "required": true,
-            "schema": { "type": "string", "title": "Email" }
-          }
-        ],
         "responses": {
           "200": {
             "description": "Successful Response",
             "content": { "application/json": { "schema": {} } }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
-              }
-            }
           }
-        }
+        },
+        "security": [{ "OAuth2PasswordBearer": [] }]
       }
     },
     "/api/client/overview/": {
       "get": {
+        "tags": ["Customer Overview"],
         "summary": "Client Overview",
         "operationId": "client_overview_api_client_overview__get",
         "responses": {
@@ -1204,6 +1166,7 @@
     },
     "/api/client/risk_and_lending/": {
       "get": {
+        "tags": ["Customer Overview"],
         "summary": "Client Risk And Lending",
         "operationId": "client_risk_and_lending_api_client_risk_and_lending__get",
         "responses": {
@@ -1216,6 +1179,7 @@
     },
     "/api/client/trends/": {
       "get": {
+        "tags": ["Customer Overview"],
         "summary": "Client Trends",
         "operationId": "client_trends_api_client_trends__get",
         "responses": {
@@ -1228,6 +1192,7 @@
     },
     "/api/client/increase_product_usage/": {
       "get": {
+        "tags": ["Customer Overview"],
         "summary": "Client Increase Product Usage",
         "operationId": "client_increase_product_usage_api_client_increase_product_usage__get",
         "responses": {
@@ -1240,6 +1205,7 @@
     },
     "/api/client/grow_merchant_rewards/": {
       "get": {
+        "tags": ["Customer Overview"],
         "summary": "Client Grow Merchant Rewards",
         "operationId": "client_grow_merchant_rewards_api_client_grow_merchant_rewards__get",
         "responses": {
@@ -1252,6 +1218,7 @@
     },
     "/api/client/save_customer_money/": {
       "get": {
+        "tags": ["Customer Overview"],
         "summary": "Client Save Customer Money",
         "operationId": "client_save_customer_money_api_client_save_customer_money__get",
         "responses": {
@@ -1264,6 +1231,7 @@
     },
     "/api/client/wallet_share/": {
       "get": {
+        "tags": ["Customer Overview"],
         "summary": "Client Wallet Share",
         "operationId": "client_wallet_share_api_client_wallet_share__get",
         "responses": {
@@ -1276,6 +1244,7 @@
     },
     "/api/client/benchmarking/": {
       "get": {
+        "tags": ["Customer Overview"],
         "summary": "Client Benchmarking",
         "operationId": "client_benchmarking_api_client_benchmarking__get",
         "responses": {
@@ -1288,6 +1257,7 @@
     },
     "/api/client/lifecycle/": {
       "get": {
+        "tags": ["Customer Overview"],
         "summary": "Client Lifecycle",
         "operationId": "client_lifecycle_api_client_lifecycle__get",
         "responses": {
@@ -1298,10 +1268,11 @@
         }
       }
     },
-    "/login": {
-      "post": {
-        "summary": "Login",
-        "operationId": "login_login_post",
+    "/": {
+      "get": {
+        "tags": ["Root"],
+        "summary": "Read Root",
+        "operationId": "read_root__get",
         "responses": {
           "200": {
             "description": "Successful Response",
@@ -1313,11 +1284,30 @@
   },
   "components": {
     "schemas": {
-      "AnalyzeRequest": {
-        "properties": { "email": { "type": "string", "title": "Email" } },
+      "Body_login_for_access_token_token_post": {
+        "properties": {
+          "grant_type": {
+            "anyOf": [
+              { "type": "string", "pattern": "^password$" },
+              { "type": "null" }
+            ],
+            "title": "Grant Type"
+          },
+          "username": { "type": "string", "title": "Username" },
+          "password": { "type": "string", "title": "Password" },
+          "scope": { "type": "string", "title": "Scope", "default": "" },
+          "client_id": {
+            "anyOf": [{ "type": "string" }, { "type": "null" }],
+            "title": "Client Id"
+          },
+          "client_secret": {
+            "anyOf": [{ "type": "string" }, { "type": "null" }],
+            "title": "Client Secret"
+          }
+        },
         "type": "object",
-        "required": ["email"],
-        "title": "AnalyzeRequest"
+        "required": ["username", "password"],
+        "title": "Body_login_for_access_token_token_post"
       },
       "CreditReport": {
         "properties": {
@@ -1417,18 +1407,84 @@
         ],
         "title": "CreditReportInput"
       },
-      "Goal": {
+      "GoalCreate": {
         "properties": {
-          "customer_email": { "type": "string", "title": "Customer Email" },
           "goal_name": { "type": "string", "title": "Goal Name" },
-          "goal_type": { "type": "string", "title": "Goal Type" },
+          "goal_type": {
+            "anyOf": [{ "type": "string" }, { "type": "null" }],
+            "title": "Goal Type",
+            "default": "General"
+          },
           "target_amount": { "type": "number", "title": "Target Amount" },
-          "current_amount": { "type": "number", "title": "Current Amount" },
+          "current_amount": {
+            "anyOf": [{ "type": "number" }, { "type": "null" }],
+            "title": "Current Amount",
+            "default": 0.0
+          },
+          "target_date": { "type": "string", "title": "Target Date" },
+          "priority": {
+            "anyOf": [{ "type": "string" }, { "type": "null" }],
+            "title": "Priority",
+            "default": "Medium"
+          },
           "progress_percent": {
             "anyOf": [{ "type": "number" }, { "type": "null" }],
             "title": "Progress Percent"
           },
+          "start_date": {
+            "anyOf": [{ "type": "string" }, { "type": "null" }],
+            "title": "Start Date"
+          },
+          "required_monthly_contribution": {
+            "anyOf": [{ "type": "number" }, { "type": "null" }],
+            "title": "Required Monthly Contribution"
+          },
+          "actual_monthly_contribution": {
+            "anyOf": [{ "type": "number" }, { "type": "null" }],
+            "title": "Actual Monthly Contribution"
+          },
+          "on_track": {
+            "anyOf": [{ "type": "boolean" }, { "type": "null" }],
+            "title": "On Track"
+          },
+          "status": {
+            "anyOf": [{ "type": "string" }, { "type": "null" }],
+            "title": "Status",
+            "default": "Active"
+          }
+        },
+        "type": "object",
+        "required": ["goal_name", "target_amount", "target_date"],
+        "title": "GoalCreate"
+      },
+      "GoalResponse": {
+        "properties": {
+          "goal_name": { "type": "string", "title": "Goal Name" },
+          "goal_type": {
+            "anyOf": [{ "type": "string" }, { "type": "null" }],
+            "title": "Goal Type",
+            "default": "General"
+          },
+          "target_amount": { "type": "number", "title": "Target Amount" },
+          "current_amount": {
+            "anyOf": [{ "type": "number" }, { "type": "null" }],
+            "title": "Current Amount",
+            "default": 0.0
+          },
           "target_date": { "type": "string", "title": "Target Date" },
+          "priority": {
+            "anyOf": [{ "type": "string" }, { "type": "null" }],
+            "title": "Priority",
+            "default": "Medium"
+          },
+          "progress_percent": {
+            "anyOf": [{ "type": "number" }, { "type": "null" }],
+            "title": "Progress Percent"
+          },
+          "start_date": {
+            "anyOf": [{ "type": "string" }, { "type": "null" }],
+            "title": "Start Date"
+          },
           "required_monthly_contribution": {
             "anyOf": [{ "type": "number" }, { "type": "null" }],
             "title": "Required Monthly Contribution"
@@ -1446,23 +1502,77 @@
             "title": "Status",
             "default": "Active"
           },
-          "priority": { "type": "string", "title": "Priority" },
-          "last_updated": {
-            "anyOf": [{ "type": "string" }, { "type": "null" }],
-            "title": "Last Updated"
-          }
+          "goal_id": {
+            "anyOf": [{ "type": "string" }, { "type": "integer" }],
+            "title": "Goal Id"
+          },
+          "customer_id": { "type": "string", "title": "Customer Id" },
+          "last_updated": { "type": "string", "title": "Last Updated" }
         },
         "type": "object",
         "required": [
-          "customer_email",
           "goal_name",
-          "goal_type",
           "target_amount",
-          "current_amount",
           "target_date",
-          "priority"
+          "goal_id",
+          "customer_id",
+          "last_updated"
         ],
-        "title": "Goal"
+        "title": "GoalResponse"
+      },
+      "GoalUpdate": {
+        "properties": {
+          "goal_name": {
+            "anyOf": [{ "type": "string" }, { "type": "null" }],
+            "title": "Goal Name"
+          },
+          "goal_type": {
+            "anyOf": [{ "type": "string" }, { "type": "null" }],
+            "title": "Goal Type"
+          },
+          "target_amount": {
+            "anyOf": [{ "type": "number" }, { "type": "null" }],
+            "title": "Target Amount"
+          },
+          "current_amount": {
+            "anyOf": [{ "type": "number" }, { "type": "null" }],
+            "title": "Current Amount"
+          },
+          "target_date": {
+            "anyOf": [{ "type": "string" }, { "type": "null" }],
+            "title": "Target Date"
+          },
+          "priority": {
+            "anyOf": [{ "type": "string" }, { "type": "null" }],
+            "title": "Priority"
+          },
+          "progress_percent": {
+            "anyOf": [{ "type": "number" }, { "type": "null" }],
+            "title": "Progress Percent"
+          },
+          "start_date": {
+            "anyOf": [{ "type": "string" }, { "type": "null" }],
+            "title": "Start Date"
+          },
+          "required_monthly_contribution": {
+            "anyOf": [{ "type": "number" }, { "type": "null" }],
+            "title": "Required Monthly Contribution"
+          },
+          "actual_monthly_contribution": {
+            "anyOf": [{ "type": "number" }, { "type": "null" }],
+            "title": "Actual Monthly Contribution"
+          },
+          "on_track": {
+            "anyOf": [{ "type": "boolean" }, { "type": "null" }],
+            "title": "On Track"
+          },
+          "status": {
+            "anyOf": [{ "type": "string" }, { "type": "null" }],
+            "title": "Status"
+          }
+        },
+        "type": "object",
+        "title": "GoalUpdate"
       },
       "HTTPValidationError": {
         "properties": {
@@ -1551,6 +1661,19 @@
         "required": ["prompt"],
         "title": "TextAnalysisRequest"
       },
+      "UserGoalsResponse": {
+        "properties": {
+          "email": { "type": "string", "title": "Email" },
+          "goals": {
+            "items": { "$ref": "#/components/schemas/GoalResponse" },
+            "type": "array",
+            "title": "Goals"
+          }
+        },
+        "type": "object",
+        "required": ["email", "goals"],
+        "title": "UserGoalsResponse"
+      },
       "ValidationError": {
         "properties": {
           "loc": {
@@ -1564,6 +1687,12 @@
         "type": "object",
         "required": ["loc", "msg", "type"],
         "title": "ValidationError"
+      }
+    },
+    "securitySchemes": {
+      "OAuth2PasswordBearer": {
+        "type": "oauth2",
+        "flows": { "password": { "scopes": {}, "tokenUrl": "/token" } }
       }
     }
   }

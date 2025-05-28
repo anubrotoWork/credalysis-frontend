@@ -21,21 +21,38 @@ export default function HomePage() {
   const router = useRouter();
 
   useEffect(() => {
-    const isLoggedIn = localStorage.getItem("auth") === "true";
-    const isUser = localStorage.getItem("access") == "user";
+    // Log the entire localStorage for debugging
+    // console.log("User Home - localStorage check:", localStorage);
 
-    if (!isLoggedIn) {
+    // ---- CORRECTED AUTHENTICATION CHECK ----
+    const authToken = localStorage.getItem("authToken"); // Check for the JWT
+    const userAccessLevel = localStorage.getItem("access");
+
+    if (!authToken) {
+      // If no token, user is not logged in
+      // console.log("User Home: No authToken found, redirecting to login.");
       router.push("/login");
+      return; // Important to return to prevent further checks after redirect
     }
 
-    if (!isUser) {
-      alert("you are not user");
+    if (userAccessLevel !== "user") {
+      // Check if the access level is correct for this page
+      // console.log(
+      //   `User Home: Access level is '${userAccessLevel}', not 'user'. Redirecting.`
+      // );
+      alert("You do not have permission to access this page."); // More informative
+      // You might want to redirect to a generic home or based on their actual access level
+      // For now, redirecting to login is a safe default if their role is unexpected here.
       router.push("/login");
+      return;
     }
+    // ---- END CORRECTED AUTHENTICATION CHECK ----
+
+    // console.log("User Home: User is authenticated and has correct access.");
   }, [router]);
 
   const handleLogout = () => {
-    localStorage.removeItem("auth");
+    localStorage.removeItem("authToken");
     localStorage.removeItem("email");
     localStorage.removeItem("access");
     router.push("/login");

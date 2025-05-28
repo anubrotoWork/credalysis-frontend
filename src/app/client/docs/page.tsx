@@ -1,38 +1,40 @@
-'use client';
+"use client";
 
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import openApiSpec from '@/lib/openapi.json'; // Adjust path if you placed it elsewhere
-import EndpointCard from '@/components/EndpointCard'; // Adjust path
-import { OpenAPIV3_1 } from 'openapi-types'; // For better typing
+import openApiSpec from "@/lib/openapi.json"; // Adjust path if you placed it elsewhere
+import EndpointCard from "@/components/EndpointCard"; // Adjust path
+import { OpenAPIV3_1 } from "openapi-types"; // For better typing
 
 const spec = openApiSpec as unknown as OpenAPIV3_1.Document;
 
 function isParameterObject(
   param: OpenAPIV3_1.ParameterObject | OpenAPIV3_1.ReferenceObject
 ): param is OpenAPIV3_1.ParameterObject {
-  return !('$ref' in param);
+  return !("$ref" in param);
 }
 
 export default function HomePage() {
   const router = useRouter();
   const paths = spec.paths || {};
   const schemas = spec.components?.schemas || {};
-  
+
   useEffect(() => {
-    const isLoggedIn = localStorage.getItem("auth") === "true";
-    const isClient = localStorage.getItem("access") == "client";
+    const authToken = localStorage.getItem("authToken"); // Check for the JWT
+    const userAccessLevel = localStorage.getItem("access");
 
-    console.log(localStorage);
-    if (!isLoggedIn) {
+    if (!authToken) {
+      // If no token, user is not logged in
+      // console.log("User Home: No authToken found, redirecting to login.");
       router.push("/login");
+      return; // Important to return to prevent further checks after redirect
     }
 
-    if(!isClient) {
-      alert("you are not client financial institution");
+    if (userAccessLevel !== "client") {
+      alert("You do not have permission to access this page."); // More informative
       router.push("/login");
+      return;
     }
-
   }, [router]);
 
   // const handleLogout = () => {
@@ -50,35 +52,41 @@ export default function HomePage() {
       </header>
 
       <main>
-        {Object.entries(paths).map(([path, pathItem]) => (
-          pathItem && Object.entries(pathItem).map(([method, operation]) => {
-            // Filter out non-operation properties like 'parameters' that might be at the path level
-            if (typeof operation !== 'object' || !('responses' in operation)) {
-              return null;
-            }
-            // Type assertion for operation
-            const op = { ...operation } as OpenAPIV3_1.OperationObject;
+        {Object.entries(paths).map(
+          ([path, pathItem]) =>
+            pathItem &&
+            Object.entries(pathItem).map(([method, operation]) => {
+              // Filter out non-operation properties like 'parameters' that might be at the path level
+              if (
+                typeof operation !== "object" ||
+                !("responses" in operation)
+              ) {
+                return null;
+              }
+              // Type assertion for operation
+              const op = { ...operation } as OpenAPIV3_1.OperationObject;
 
-            if (op.parameters) {
-              op.parameters = op.parameters
-                .filter(isParameterObject)
-                .filter(param =>
-                  ['header', 'path', 'query', 'cookie'].includes(param.in)
-                );
-            }
+              if (op.parameters) {
+                op.parameters = op.parameters
+                  .filter(isParameterObject)
+                  .filter((param) =>
+                    ["header", "path", "query", "cookie"].includes(param.in)
+                  );
+              }
 
-
-            return (
-              <EndpointCard
-                key={`${path}-${method}`}
-                path={path}
-                method={method}
-                operation={op} // Now matches your stricter type!
-                allSchemas={schemas as Record<string, OpenAPIV3_1.SchemaObject>} 
-              />
-            );
-          })
-        ))}
+              return (
+                <EndpointCard
+                  key={`${path}-${method}`}
+                  path={path}
+                  method={method}
+                  operation={op} // Now matches your stricter type!
+                  allSchemas={
+                    schemas as Record<string, OpenAPIV3_1.SchemaObject>
+                  }
+                />
+              );
+            })
+        )}
       </main>
 
       <footer className="mt-12 text-center text-gray-500 text-sm">

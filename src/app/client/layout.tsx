@@ -13,10 +13,11 @@ export default function InnerLayout({ children }: { children: React.ReactNode })
       <nav className="w-64 h-screen bg-gray-800 text-white fixed">
         <ul className="p-6 space-y-4">
           <li><a href="/client/docs" className="hover:underline">Docs</a></li>
+          <li><a href="/client/home" className="hover:underline">Home</a></li>
           <li><a href="/client/dashboard" className="hover:underline">Dashboard</a></li>
           {/* <li><a href="/client/client_dashboard" className="hover:underline">Client Dashboard</a></li> */}
-          <li><a href="/client/analytics" className="hover:underline">Analytics</a></li>
-          <li><a href="/client/recommendations" className="hover:underline">Recommendations</a></li>
+          {/* <li><a href="/client/analytics" className="hover:underline">Analytics</a></li> */}
+          <li><a href="/client/recommendations/" className="hover:underline">Recommendations</a></li>
           <li><a href="/client/model_manager" className="hover:underline">Model Manager</a></li>
         </ul>
       </nav>

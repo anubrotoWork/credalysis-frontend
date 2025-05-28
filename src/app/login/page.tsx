@@ -1,3 +1,4 @@
+// src/app/login/page.tsx
 'use client';
 
 import { useState } from "react";
@@ -10,8 +11,6 @@ export default function LoginPage() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   
-  // const backendApiUrl = "http://34.9.145.33:8000";
-
   const backendApiUrl = process.env.NEXT_PUBLIC_BACKEND_API_URL;
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -19,39 +18,68 @@ export default function LoginPage() {
     setLoading(true);
     setError("");
 
-    // console.log(backendApiUrl);
+    if (!backendApiUrl) {
+        setError("API URL is not configured. Please contact support.");
+        setLoading(false);
+        return;
+    }
 
     try {
-      const res = await fetch(`${backendApiUrl}/login`, {
+      // For OAuth2PasswordRequestForm, data should be form-urlencoded
+      const formData = new URLSearchParams();
+      formData.append('username', email); // 'username' is the standard field name for email/user ID
+      formData.append('password', password);
+      // You might need to append 'scope' if your backend /token endpoint uses it,
+      // but for simple username/password, this is often enough.
+      // formData.append('scope', ''); 
+
+      const res = await fetch(`${backendApiUrl}/token`, { // Changed to /token
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
+        headers: { 
+            "Content-Type": "application/x-www-form-urlencoded" // Correct header for form data
+        },
+        body: formData.toString(), // Send as URL-encoded string
       });
 
       const data = await res.json();
 
-      if (data.status?.includes("Authenticated")) {
-        localStorage.setItem("auth", "true");
-        localStorage.setItem("email", email);
-        localStorage.setItem("access", data.access);
+      if (res.ok && data.access_token) { // Check for res.ok and the actual access_token
+        localStorage.setItem("authToken", data.access_token); // Store the JWT
+        localStorage.setItem("email", data.email);       // Store email (from token response)
+        localStorage.setItem("access", data.access);     // Store access level (from token response)
+        
+        // Optionally remove old "auth" flag if you used it previously
+        localStorage.removeItem("auth"); 
+
+        // Redirect based on access level
         if (data.access === "admin") {
-          router.push("/admin/home");
+          router.push("/admin/home"); 
         } else if (data.access === "client") {
-          router.push("/client/home");
+          router.push("/client/home"); 
         } else if (data.access === "user") {
-          router.push("/user/home");
+          router.push("/user/home");   
+        } else {
+            setError("Unknown user role received from server.");
+            // Clear stored items if role is unknown to prevent partial login state
+            localStorage.removeItem("authToken");
+            localStorage.removeItem("email");
+            localStorage.removeItem("access");
         }
       } else {
-        setError("Invalid credentials");
+        // Use error detail from backend if available, otherwise a generic message
+        setError(data.detail || "Invalid credentials or login failed.");
       }
     } catch (err) {
       console.error("Login error:", err);
-      setError("Login failed. Try again.");
+      // Check if err is an Error instance to access err.message safely
+      const errorMessage = err instanceof Error ? err.message : "An unexpected error occurred.";
+      setError(`Login failed: ${errorMessage}. Please try again.`);
     } finally {
       setLoading(false);
     }
   };
 
+  // ... (JSX form remains the same - I'll include it for completeness)
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100">
       <form onSubmit={handleLogin} className="bg-white p-6 rounded-lg shadow-lg w-96">
@@ -59,8 +87,10 @@ export default function LoginPage() {
         <input
           className="border border-gray-300 bg-gray-200 text-gray-900 placeholder-gray-500 w-full mb-3 px-3 py-2 rounded"
           placeholder="Email"
+          type="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
+          required
         />
         <input
           className="border border-gray-300 bg-gray-200 text-gray-900 placeholder-gray-500 w-full mb-3 px-3 py-2 rounded"
@@ -68,6 +98,7 @@ export default function LoginPage() {
           placeholder="Password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
+          required
         />
         {error && <p className="text-red-500 text-sm mb-2">{error}</p>}
         <button
@@ -91,10 +122,10 @@ export default function LoginPage() {
                   stroke="currentColor"
                   strokeWidth="4"
                 />
-                <path
+                <path // Using a more complete spinner path
                   className="opacity-75"
                   fill="currentColor"
-                  d="M4 12a8 8 0 018-8v8z"
+                  d="M4 12a8 8 0 018-8V8H8V4a8 8 0 00-8 8h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                 />
               </svg>
               Logging in...

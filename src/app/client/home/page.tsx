@@ -24,24 +24,25 @@ export default function HomePage() {
   const router = useRouter();
 
   useEffect(() => {
-    const isLoggedIn = localStorage.getItem("auth") === "true";
-    const isClient = localStorage.getItem("access") == "client";
+    const authToken = localStorage.getItem("authToken"); // Check for the JWT
+    const userAccessLevel = localStorage.getItem("access");
 
-    console.log(localStorage);
-    if (!isLoggedIn) {
+    if (!authToken) {
+      // If no token, user is not logged in
+      // console.log("User Home: No authToken found, redirecting to login.");
       router.push("/login");
+      return; // Important to return to prevent further checks after redirect
     }
 
-    if (!isClient) {
-      alert("you are not client Financial Institution");
+    if (userAccessLevel !== "client") {
+      alert("You do not have permission to access this page."); // More informative
       router.push("/login");
+      return;
     }
   }, [router]);
 
   const handleLogout = () => {
-    localStorage.removeItem("auth");
-    localStorage.removeItem("email");
-    localStorage.removeItem("access");
+    localStorage.clear();
     router.push("/login");
   };
 
